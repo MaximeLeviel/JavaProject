@@ -3,7 +3,7 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] Arg){
+    public static void main(String[] Arg){ //Je pense que ça sera a mettre dans la classe game directement
         //Initialization
         //Créer la map (j'ai pas la foi ajd uhu)
 
@@ -22,6 +22,7 @@ public class Main {
         System.out.println("Number of players: " + nb);
 
         Game game = new Game(nb);
+        game.createPlayers();
 
 
         sc.close();

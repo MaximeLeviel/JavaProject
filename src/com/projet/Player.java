@@ -16,5 +16,20 @@ public class Player {
     }
 
     //Methods
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder("Player: ");
+        result.append(ID);
+        result.append("\nName: ");
+        result.append(name);
+        result.append("\nTerritories: ");
+        /*for (Territory t : territories) {
+            result.append(t);
+        }
+        */
+        System.out.println("\n");
+        return result.toString();
+    }
+
 
 }
