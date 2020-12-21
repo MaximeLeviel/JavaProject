@@ -15,19 +15,33 @@ public class Player {
         this.territories = _territories;
     }
 
+    //Setters
+    public void initTerritories(ArrayList<Territory> _territories){
+        this.territories = _territories;
+    }
+
+    public void addToTerritories(Territory value){
+        this.territories.add(value);
+    }
+
+    public void deleteToTerritories(int index){
+        this.territories.remove(index);
+    }
+
     //Methods
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("\n------ Player number ");
+        StringBuilder result = new StringBuilder("\n-------------------- Player number ");
         result.append(ID);
-        result.append("------");
+        result.append("--------------------");
         result.append("\nName: ");
         result.append(name);
-        result.append("\nTerritories: ");
-        /*for (Territory t : territories) {
-            result.append(t);
+        result.append("\n");
+        for(Territory territory : territories){
+            result.append(territory.displayForPlayer());
+            result.append("\n");
         }
-        */
+        //result.append(territories); Plus détaillé mais prend plus de place
         System.out.println("\n");
         return result.toString();
     }

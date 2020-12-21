@@ -1,4 +1,5 @@
 package com.projet;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -29,7 +30,6 @@ public class Main {
 
         Game game = new Game(nb);
         game.createPlayers();
-        game.displayPlayers();
 
         System.out.println("\n--------------- SIZE OF THE MAP ---------------\n");
         System.out.println("Enter the number of lines: ");
@@ -37,10 +37,13 @@ public class Main {
         System.out.println("Enter the number of columns: ");
         nb2 = checkInput(4, 10);
 
-        Map map = new Map(nb,nb2);
-        map.initMap();
-        map.displayMap();
+        Map myMap = new Map(nb,nb2);
+        myMap.createMap();
+        game.initMap(myMap.map);
+        game.displayMap(myMap.map);
 
+        game.initTerritories(myMap.map);
+        game.displayPlayers();
 
     }
 }

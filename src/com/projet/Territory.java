@@ -7,14 +7,36 @@ public class Territory {
     private final int ID;
     private int playerID;
     private int strength;
-    private final ArrayList<Integer> neighbor;
+    private ArrayList<Integer> neighbors;
 
     //Constructor
-    public Territory(int _ID, int _PlayerID, int _strength, ArrayList<Integer> _neighbor){
+    public Territory(int _ID, int _PlayerID, int _strength, ArrayList<Integer> _neighbors){
         this.ID = _ID;
         this.playerID = _PlayerID;
         this.strength = _strength;
-        this.neighbor = _neighbor;
+        this.neighbors = _neighbors;
+    }
+
+    //Getters
+    public int getID(){
+        return this.ID;
+    }
+
+    public int getPlayerID(){
+        return this.playerID;
+    }
+
+    //Setters
+    public void setNeighbors(ArrayList<Integer> _neighbors){
+        this.neighbors = _neighbors;
+    }
+
+    public void setStrength(int _strength){
+        this.strength = _strength;
+    }
+
+    public void setPlayerID(int _playerID){
+        this.playerID = _playerID;
     }
 
     //Methods
@@ -30,16 +52,23 @@ public class Territory {
         }
     }
 
+    public String displayForPlayer(){
+        StringBuilder result = new StringBuilder("Territory [" + this.ID + "]: strength {" + this.strength + "} neighbors: ");
+        result.append(neighbors);
+        return result.toString();
+    }
+
     @Override // A voir si utile plus tard
     public String toString() {
-        StringBuilder result = new StringBuilder("Territory: ");
+        StringBuilder result = new StringBuilder("\n\n------ Territory ");
         result.append(ID);
+        result.append("------");
         result.append("\nStrength: ");
         result.append(strength);
         result.append("\nNeigbors: ");
-        /*for (Integer n : neighbor) {
-            result.append(n);
-        }*/
+        result.append(neighbors);
+        result.append("\nBelongs to player: ");
+        result.append(playerID);
         System.out.println("\n");
         return result.toString();
     }
