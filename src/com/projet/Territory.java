@@ -18,16 +18,28 @@ public class Territory {
     }
 
     //Methods
-    @Override
+    public String displayTerritory(){ //Display dans la carte
+        if(this.ID < 10 && this.strength < 10){
+            return "[" + this.ID + "]{" + this.strength + "}(" + this.playerID + ")  ";
+        }
+        else if (this.ID < 10 || this.strength < 10){
+            return "[" + this.ID + "]{" + this.strength + "}(" + this.playerID + ") ";
+        }
+        else{
+            return "[" + this.ID + "]{" + this.strength + "}(" + this.playerID + ")";
+        }
+    }
+
+    @Override // A voir si utile plus tard
     public String toString() {
         StringBuilder result = new StringBuilder("Territory: ");
         result.append(ID);
         result.append("\nStrength: ");
         result.append(strength);
         result.append("\nNeigbors: ");
-        for (Integer n : neighbor) {
+        /*for (Integer n : neighbor) {
             result.append(n);
-        }
+        }*/
         System.out.println("\n");
         return result.toString();
     }

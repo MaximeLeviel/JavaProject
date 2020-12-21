@@ -18,8 +18,9 @@ public class Player {
     //Methods
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("Player: ");
+        StringBuilder result = new StringBuilder("\n------ Player number ");
         result.append(ID);
+        result.append("------");
         result.append("\nName: ");
         result.append(name);
         result.append("\nTerritories: ");
