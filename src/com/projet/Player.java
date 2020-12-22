@@ -7,19 +7,28 @@ public class Player {
     private int ID;
     private String name;
     private ArrayList<Territory> territories;
+    private int nbDices;
 
     //Constructor
-    public Player(int _ID, String _name, ArrayList<Territory> _territories){
+    public Player(int _ID, String _name){
         this.ID = _ID;
         this.name = _name;
-        this.territories = _territories;
+        this.territories = new ArrayList<>();
+        this.nbDices = 0;
     }
 
+    //Getters
+    public ArrayList<Territory> getTerritories(){
+        return this.territories;
+    }
+
+    public int getNbDices(){
+        return this.nbDices;
+    }
     //Setters
-    public void initTerritories(ArrayList<Territory> _territories){
-        this.territories = _territories;
+    public void setNbDices(int _nbDices){
+        this.nbDices = _nbDices;
     }
-
     public void addToTerritories(Territory value){
         this.territories.add(value);
     }
@@ -31,7 +40,7 @@ public class Player {
     //Methods
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("\n-------------------- Player number ");
+        StringBuilder result = new StringBuilder("-------------------- Player number ");
         result.append(ID);
         result.append("--------------------");
         result.append("\nName: ");

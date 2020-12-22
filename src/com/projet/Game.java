@@ -1,46 +1,33 @@
 package com.projet;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Game {
     //Attributes
-    private int nbPlayer;
-    private int nbTerritories;
+    private final int nbPlayer;
+    private final int nbTerritories;
     private ArrayList<Player> players;
 
     //Constructor
-    public Game(int _nbPlayer) {
+    public Game(int _nbPlayer, int _nbTerritories) {
         this.nbPlayer = _nbPlayer;
+        this.nbTerritories = _nbTerritories;
     }
 
     //Methods for players
     public void createPlayers() {
         this.players = new ArrayList<>();
         Scanner sc = new Scanner(System.in);
-        for (int i = 1; i <= nbPlayer; i++) {
+        for (int i = 0; i < nbPlayer; i++) {
 
-            System.out.println("\n------ Player number " + i + "------");
+            System.out.println("\n------ Player number " + (i+1) + "------");
 
             System.out.println("Enter the name of the player:");
             String name = sc.nextLine();
 
-            Player player = new Player(i, name, null);
+            Player player = new Player(i, name);
             this.players.add(player);
-        }
-    }
-
-    public void initTerritories(Territory[][] map){//associate the territories to the players
-        for (Player player : players) {//Create and associate an array territory for each players
-            ArrayList<Territory> territories = new ArrayList<>();
-            player.initTerritories(territories);
-        }
-        for(int i = 0; i < map.length; i++){
-            for(int j = 0; j < map[0].length; j++) {
-                int p = map[i][j].getPlayerID()-1;
-                players.get(p).addToTerritories(map[i][j]);
-            }
         }
     }
 
@@ -52,17 +39,65 @@ public class Game {
 
     //Methods for map
     public void initMap(Territory[][] map){ //Give the strength and players to each territory
-        for(int i = 0; i < map.length; i++){
-            for(int j = 0; j < map[0].length; j++){
-                //TODO : faire en sorte que chaque player ai le meme nombre de dés
-                //TODO : s'assurer que chaque player ai un minimum de territoire
-                int player = (int)(Math.random() * nbPlayer + 1);
-                int strength = (int)(Math.random() * 8 + 1); //between 1 and 8
-                map[i][j].setStrength(strength);
-                map[i][j].setPlayerID(player);
+        int remainder = nbTerritories % nbPlayer;
+        int totalDices = (nbTerritories/nbPlayer)*5; //Number of dices per player = average of 5 dices per territory
+        int player, strength;
+
+        //Dispatch the different territories equally (or add the excess randomly)
+        int cpt = 1;
+        for (Territory[] territories : map) {
+            for (int j = 0; j < map[0].length; j++) {
+                if(cpt <= nbTerritories - remainder){//Associate the same number of territories for each players
+                    do {
+                        player = (int) (Math.random() * nbPlayer); //associate a random player (from 0 to nbPlayer -1)
+                    }
+                    while (players.get(player).getTerritories().size() >= (nbTerritories / nbPlayer)); //if player has already its maximum number of territories (nbTerritories/nbPlayers) pull another player
+                }
+                else{//Associate the remaining territories in excess randomly
+                    player = (int) (Math.random() * nbPlayer);
+                    System.out.println("player bonus : " + player);
+                }
+                players.get(player).addToTerritories(territories[j]);
+                territories[j].setPlayerID(player);//associate the territory to the player
+                cpt++;
             }
         }
+
+        //Dispatch the dices to the territories for each players
+        for (Player p : players) {
+            cpt = 0;
+            for(int i = 0; i < (p.getTerritories().size() - 1); i++){//All territories except the last one
+                do {
+                    strength = (int) (Math.random() * 8 + 1); //between 1 and 8
+                    System.out.println("territory total: " + (p.getTerritories().size()));
+                    System.out.println("DES PULL: " + (strength));
+
+
+                    System.out.println("nb dices left AVANT AJOUT: " + (totalDices - (p.getNbDices())));
+                    System.out.println("nb dices left APRES AJOUT: " + (totalDices - (p.getNbDices() + strength)));
+
+                    System.out.println("nb dices deja fait sans ajout: " + (p.getNbDices()));
+                    System.out.println("nb dices deja fait avec ajout: " + (p.getNbDices()+strength));
+
+                    System.out.println("nb territory deja fait: " + (cpt));
+                    System.out.println("nb territory left: " + (p.getTerritories().size()-cpt));
+
+
+                } while ((totalDices - (p.getNbDices() + strength) < (p.getTerritories().size()-cpt))// [number of remaining dices < number of remaining territories] = not enough dices for remaining territories
+                        || (totalDices - p.getNbDices() > 8 * (p.getTerritories().size()-cpt)));//Or [number of remaining dices > 8 * number of remaining territories] = too much dices left for remaining territories
+
+                cpt++;
+                p.setNbDices(strength + p.getNbDices());//Add the dices to player
+                p.getTerritories().get(i).setStrength(strength);//associate a strength to the territory
+            }
+            p.getTerritories().get(p.getTerritories().size() - 1).setStrength(totalDices-p.getNbDices()); //Change strength of last territory in order to get the right amount of dices
+        }
     }
+
+
+
+
+
     public void displayMap(Territory[][] map){
         System.out.println("------------------------------------------- MAP -------------------------------------------");
         for (Territory[] territories : map) {
@@ -76,5 +111,85 @@ public class Game {
         System.out.println("{} : Strength of the territory");
         System.out.println("() : Owner of the territory");
         System.out.println("-------------------------------------------------------------------------------------------");
+    }
+
+
+    public boolean endCondition(){
+        //If a player has all territories
+        for(Player player : players){
+            if(player.getTerritories().size() == nbTerritories){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //START A GAME
+    public static int checkInput(int min, int max){ //Check the inputs of the user if expected an integer with min and max values
+        int input;
+        Scanner sc = new Scanner(System.in);
+        do {
+            System.out.println("Enter a number between " + min +" and "+ max +": ");
+            while (!sc.hasNextInt()) {
+                System.out.println("Please enter an integer: ");
+                sc.next(); // delete the last scanner
+            }
+            input = sc.nextInt();
+        } while (input < min || input > max);
+        return input;
+    }
+
+    //MAIN
+    public static void main(String[] Arg){
+        int opt = 1;
+        do {
+            int nbPlayer, line, column;
+
+            System.out.println("======================= WELCOME TO RISK =======================\n");
+
+            System.out.println("-------------- NUMBER OF PLAYERS --------------\n");
+            nbPlayer = checkInput(2, 6);
+            System.out.println("\nNumber of players: " + nbPlayer);
+
+            System.out.println("\n--------------- SIZE OF THE MAP ---------------\n");
+            System.out.println("Enter the number of lines: ");
+            line = checkInput(4, 9);
+            System.out.println("Enter the number of columns: ");
+            column = checkInput(4, 10);
+            int nbTerritories = line*column;
+
+            //Creation of the game
+            System.out.println("-------------- SETTINGS --------------\n");
+            Game game = new Game(nbPlayer, nbTerritories);
+
+            //Creation of the map
+            Map myMap = new Map(line, column); //Create a map of dimension line*column (empty)
+            myMap.createMap(); //Fill the map with Territories ID
+
+            //Creation of the players
+            game.createPlayers();
+            game.initMap(myMap.map); //Fill the territories with a strength and a
+
+            //Display
+            game.displayMap(myMap.map);
+            game.displayPlayers();
+
+            System.out.println("\n-------------------- START OF THE GAME --------------------");
+            int player = (int) (Math.random() * nbPlayer + 1);
+            System.out.println("Player " + player + " will begin:");
+
+            do{
+                System.out.println("GAME GAME GAME");
+                line = checkInput(4, 9);
+            }
+            while(!game.endCondition());
+
+            System.out.println("\n--------------------- END OF THE GAME ---------------------");
+            System.out.println("Do you want to start a new game ? : 1. Yes  2. No");
+            opt = checkInput(1, 2);
+        }
+        while(opt != 2);
+
+
     }
 }
