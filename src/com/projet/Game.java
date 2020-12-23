@@ -21,7 +21,7 @@ public class Game {
         Scanner sc = new Scanner(System.in);
         for (int i = 0; i < nbPlayer; i++) {
 
-            System.out.println("\n------ Player number " + (i+1) + "------");
+            System.out.println("\n------ Player number " + (i+1) + " ------");
 
             System.out.println("Enter the name of the player:");
             String name = sc.nextLine();
@@ -55,47 +55,31 @@ public class Game {
                 }
                 else{//Associate the remaining territories in excess randomly
                     player = (int) (Math.random() * nbPlayer);
-                    System.out.println("player bonus : " + player);
                 }
-                players.get(player).addToTerritories(territories[j]);
-                territories[j].setPlayerID(player);//associate the territory to the player
+                players.get(player).addToTerritories(territories[j]);//associate the territory to the player
+                territories[j].setPlayerID(player);//associate the player's ID to the territory
                 cpt++;
             }
         }
 
         //Dispatch the dices to the territories for each players
         for (Player p : players) {
-            cpt = 0;
+            cpt = 1;
             for(int i = 0; i < (p.getTerritories().size() - 1); i++){//All territories except the last one
                 do {
                     strength = (int) (Math.random() * 8 + 1); //between 1 and 8
-                    System.out.println("territory total: " + (p.getTerritories().size()));
-                    System.out.println("DES PULL: " + (strength));
-
-
-                    System.out.println("nb dices left AVANT AJOUT: " + (totalDices - (p.getNbDices())));
-                    System.out.println("nb dices left APRES AJOUT: " + (totalDices - (p.getNbDices() + strength)));
-
-                    System.out.println("nb dices deja fait sans ajout: " + (p.getNbDices()));
-                    System.out.println("nb dices deja fait avec ajout: " + (p.getNbDices()+strength));
-
-                    System.out.println("nb territory deja fait: " + (cpt));
-                    System.out.println("nb territory left: " + (p.getTerritories().size()-cpt));
-
 
                 } while ((totalDices - (p.getNbDices() + strength) < (p.getTerritories().size()-cpt))// [number of remaining dices < number of remaining territories] = not enough dices for remaining territories
-                        || (totalDices - p.getNbDices() > 8 * (p.getTerritories().size()-cpt)));//Or [number of remaining dices > 8 * number of remaining territories] = too much dices left for remaining territories
+                        || (totalDices - (p.getNbDices() + strength) > 8 * (p.getTerritories().size()-cpt)));//Or [number of remaining dices > 8 * number of remaining territories] = too much dices left for remaining territories
 
                 cpt++;
                 p.setNbDices(strength + p.getNbDices());//Add the dices to player
                 p.getTerritories().get(i).setStrength(strength);//associate a strength to the territory
             }
-            p.getTerritories().get(p.getTerritories().size() - 1).setStrength(totalDices-p.getNbDices()); //Change strength of last territory in order to get the right amount of dices
+            p.getTerritories().get(p.getTerritories().size() - 1).setStrength(totalDices-p.getNbDices()); //Last territory filled with the remaining dices (we made sure it was between 1 and 8)
+            p.setNbDices((totalDices));//Add the dices to player
         }
     }
-
-
-
 
 
     public void displayMap(Territory[][] map){
@@ -112,7 +96,6 @@ public class Game {
         System.out.println("() : Owner of the territory");
         System.out.println("-------------------------------------------------------------------------------------------");
     }
-
 
     public boolean endCondition(){
         //If a player has all territories
