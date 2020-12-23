@@ -3,14 +3,14 @@ package com.projet;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Map {
+public class Maps {
     //Attributes
     public Territory[][] map;
 
     //Constructor
     //TODO : Constructor avec map CSV
 
-    public Map(int line, int column){
+    public Maps(int line, int column){
         this.map = new Territory[line][column];
     } //Create an empty 2D array
 

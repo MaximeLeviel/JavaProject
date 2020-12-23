@@ -1,5 +1,6 @@
 package com.projet;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Territory {
@@ -26,6 +27,10 @@ public class Territory {
         return this.playerID;
     }
 
+    public int getStrength(){ return this.strength;}
+
+    public ArrayList<Integer> getNeighbors(){ return this.neighbors;}
+
     //Setters
     public void setNeighbors(ArrayList<Integer> _neighbors){
         this.neighbors = _neighbors;
@@ -42,13 +47,13 @@ public class Territory {
     //Methods
     public String displayTerritory(){ //Display dans la carte
         if(this.ID < 10 && this.strength < 10){
-            return "[" + this.ID + "]{" + this.strength + "}(" + this.playerID + ")  ";
+            return "[" + this.ID + "]{" + this.strength + "}(" + (this.playerID + 1) + ")  ";
         }
         else if (this.ID < 10 || this.strength < 10){
-            return "[" + this.ID + "]{" + this.strength + "}(" + this.playerID + ") ";
+            return "[" + this.ID + "]{" + this.strength + "}(" + (this.playerID + 1) + ") ";
         }
         else{
-            return "[" + this.ID + "]{" + this.strength + "}(" + this.playerID + ")";
+            return "[" + this.ID + "]{" + this.strength + "}(" + (this.playerID + 1) + ")";
         }
     }
 

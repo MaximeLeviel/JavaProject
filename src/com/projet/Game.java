@@ -1,6 +1,8 @@
 package com.projet;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Game {
@@ -65,7 +67,7 @@ public class Game {
         //Dispatch the dices to the territories for each players
         for (Player p : players) {
             cpt = 1;
-            for(int i = 0; i < (p.getTerritories().size() - 1); i++){//All territories except the last one
+            for (Map.Entry<Integer, Territory> entry : p.getTerritories().entrySet()) {
                 do {
                     strength = (int) (Math.random() * 8 + 1); //between 1 and 8
 
@@ -74,12 +76,11 @@ public class Game {
 
                 cpt++;
                 p.setNbDices(strength + p.getNbDices());//Add the dices to player
-                p.getTerritories().get(i).setStrength(strength);//associate a strength to the territory
+                entry.getValue().setStrength(strength);//associate a strength to the territory
             }
-            p.getTerritories().get(p.getTerritories().size() - 1).setStrength(totalDices-p.getNbDices()); //Last territory filled with the remaining dices (we made sure it was between 1 and 8)
-            p.setNbDices((totalDices));//Add the dices to player
         }
     }
+
 
 
     public void displayMap(Territory[][] map){
@@ -122,6 +123,69 @@ public class Game {
         return input;
     }
 
+    public int throwDices(int nbDices){//Simulate the throw of nbDices of dices
+        int dices = 0;
+        for(int i = 0; i < nbDices; i++){
+            int dice = (int) (Math.random() * 6 + 1); //between 1 and 6
+            dices = dices + dice;
+        }
+        return dices;
+    }
+
+    public boolean attack(Player playerAttacker, ArrayList<Integer> listAttack, Territory[][] map){
+        boolean win = true;
+        Territory attacker, defender = null;
+        Player playerDefender = null;
+        attacker = playerAttacker.getTerritories().get(listAttack.get(0));
+
+
+        outerloop:
+        for(Territory[] t : map){//We need to get the Territory of ID defender
+            for(Territory territory : t){
+                if(territory.getID() == listAttack.get(1)){
+                    defender = territory;
+                    playerDefender = players.get(territory.getPlayerID());
+                    break outerloop; //allows to break out of the nested for loops once we've found our territory
+                }
+            }
+        }
+
+        System.out.println("\n----------- Territory "+ listAttack.get(0) + " attacks territory " + listAttack.get(1) + " -----------");
+        System.out.println("\nAttacker:\nPlayer " + (attacker.getPlayerID() + 1) + "\nNumber of dices: " + attacker.getStrength());
+        System.out.println("\nDefender:\nPlayer " + (defender.getPlayerID() + 1) + "\nNumber of dices: " + defender.getStrength());
+
+        System.out.println("Press any key to through the dices");
+        Scanner sc = new Scanner(System.in);
+        String input = sc.nextLine();
+
+        int diceAttacker = throwDices(attacker.getStrength());
+        int diceDefender = throwDices(defender.getStrength());
+
+        System.out.println("Dices of the attacker :" + diceAttacker);
+        System.out.println("Dices of the defender :" + diceDefender);
+
+        if(diceAttacker > diceDefender){
+            System.out.println("The attacker won the battle, the territory " + (defender.getID()) + " now belongs to player " + (playerAttacker.getID() + 1));
+            playerDefender.setNbDices(playerDefender.getNbDices() - defender.getStrength()); //We remove the number of dices of the defending territory for the defender
+            defender.setStrength(attacker.getStrength()-1); //We change the number of dices of the defending territories by the remaining dices
+            attacker.setStrength(1); //We leave one dice to the attacking territory
+            defender.setPlayerID(attacker.getPlayerID()); // The defending territory now belongs to the attacker
+            playerAttacker.addToTerritories(defender); // We add this territory to the territories of the attacker
+            playerDefender.deleteToTerritories(defender.getID()); //We remove the territory from the defender
+        }
+        else{
+            System.out.println("The attacker looses the battle");
+            win = false;
+            attacker.setStrength(1); //We replace the dices of the attacking territories by 1
+
+            //Just for better display
+            System.out.println("Press any key to continue");
+            sc = new Scanner(System.in);
+            input = sc.nextLine();
+        }
+        return win;
+    }
+
     //MAIN
     public static void main(String[] Arg){
         int opt = 1;
@@ -146,7 +210,7 @@ public class Game {
             Game game = new Game(nbPlayer, nbTerritories);
 
             //Creation of the map
-            Map myMap = new Map(line, column); //Create a map of dimension line*column (empty)
+            Maps myMap = new Maps(line, column); //Create a map of dimension line*column (empty)
             myMap.createMap(); //Fill the map with Territories ID
 
             //Creation of the players
@@ -158,12 +222,34 @@ public class Game {
             game.displayPlayers();
 
             System.out.println("\n-------------------- START OF THE GAME --------------------");
-            int player = (int) (Math.random() * nbPlayer + 1);
-            System.out.println("Player " + player + " will begin:");
-
+            int player = (int) (Math.random() * nbPlayer);
+            System.out.println("Player " + (player+1) + " will begin:");
+            int test = 0;
             do{
-                System.out.println("GAME GAME GAME");
-                line = checkInput(4, 9);
+                boolean win;
+                do{
+                    game.displayMap(myMap.map);
+                    ArrayList<Integer> listAttack = new ArrayList<>();
+                    listAttack = game.players.get(player).attackTerritories();
+                    System.out.println("attacker " + listAttack.get(0));
+                    System.out.println("defender " + listAttack.get(1));
+                    win = game.attack(game.players.get(player), listAttack, myMap.map);
+
+                    if(win){
+                        System.out.println("Do you want to attack again ? 1. Yes 0. No");
+                        test = checkInput(0, 1);
+                    }
+                }
+                while(win && test != 0);//while (!endTurn || !win) //TODO : implémenter endTurn (qui est complétement con a faire dans Player si vous voulez mon avis ....)
+
+                //TODO : implémenter le gains de dés a la fin d'un tour
+                if(player != (nbPlayer-1)){//We go to the next player
+                    player = player + 1;
+                }
+                else{
+                    player = 0; //We go back to first player
+
+                }
             }
             while(!game.endCondition());
 

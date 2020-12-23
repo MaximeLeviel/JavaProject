@@ -1,24 +1,24 @@
 package com.projet;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class Player {
     //Attributes
     private final int ID;
     private final String name;
-    private ArrayList<Territory> territories;
+    private TreeMap<Integer, Territory> territories;
     private int nbDices;
 
     //Constructor
     public Player(int _ID, String _name){
         this.ID = _ID;
         this.name = _name;
-        this.territories = new ArrayList<>();
+        this.territories = new TreeMap<>();
         this.nbDices = 0;
     }
 
     //Getters
-    public ArrayList<Territory> getTerritories(){
+    public Map<Integer, Territory> getTerritories(){
         return this.territories;
     }
 
@@ -26,12 +26,16 @@ public class Player {
         return this.nbDices;
     }
 
+    public int getID(){
+        return this.ID;
+    }
+
     //Setters
     public void setNbDices(int _nbDices){
         this.nbDices = _nbDices;
     }
     public void addToTerritories(Territory value){
-        this.territories.add(value);
+        this.territories.put(value.getID(),value);
     }
 
     public void deleteToTerritories(int index){
@@ -39,6 +43,60 @@ public class Player {
     }
 
     //Methods
+
+    //Check the inputs of the user if expected an integer with an array of possible values
+    public static int checkList(ArrayList<Integer> t){
+        int input;
+        Scanner sc = new Scanner(System.in);
+        do {
+            System.out.println("The number must be between this values : " + t);
+            while (!sc.hasNextInt()) {
+                System.out.println("Please enter an integer: ");
+                sc.next(); // delete the last scanner
+            }
+            input = sc.nextInt();
+        } while (!t.contains(input));
+        return input;
+    }
+
+    //Ask the user for the territory which will attack and the territory which will defend
+    public ArrayList<Integer> attackTerritories(){
+        ArrayList<Integer> listAttack = new ArrayList<>();//List of IDs of territories that can attack
+        for (Map.Entry<Integer, Territory> entry : territories.entrySet()){//For each territory of the player
+            if(entry.getValue().getStrength() != 1){//Strength must not be 1 to attack
+                int cpt = 0;
+                for(Integer n : entry.getValue().getNeighbors()){//For each neighbors of that territory
+                    if(territories.containsKey(n)){
+                        cpt++;
+                    };
+                }
+                if(cpt != entry.getValue().getNeighbors().size()){//Can attack only if all neighbors are not owned by the player
+                    listAttack.add(entry.getKey());//This territory can attack
+                }
+            }
+        }
+        System.out.println("\n--------------------- ATTACK OF PLAYER " + (this.ID + 1) + " ---------------------");
+        System.out.println(this);
+        System.out.println("Which territory will attack ?");
+        int attacker = checkList(listAttack);
+
+        listAttack.clear(); //Clear to use it as the List of IDs of territories that can be attacked from a selected territory
+        for(Integer n : territories.get(attacker).getNeighbors()){//for all neighbors of the attacker territory
+            if(!territories.containsKey(n)){//Only select those who don't belong to the player
+                listAttack.add(n);
+            }
+        }
+        System.out.println("Which territory do you want to attack ?");
+        //TODO : faire en sorte que le joueur puisse voir le nombre de dés des territoires voisins
+        //TODO : pouvoir retourner en arrière pour selectionner un autre territoire
+        int defender = checkList(listAttack);
+
+        listAttack.clear();//We reuse listAttack to return 2 variables
+        listAttack.add(attacker);
+        listAttack.add(defender);
+        return listAttack;
+    }
+
 
 
 
@@ -52,8 +110,8 @@ public class Player {
         result.append("\n");
         result.append("Number of territory: " + territories.size() + "\n");
         result.append("Number of dices: " + nbDices + "\n\n");
-        for(Territory territory : territories){
-            result.append(territory.displayForPlayer());
+        for(Territory value : territories.values()){
+            result.append(value.displayForPlayer());
             result.append("\n");
         }
 
