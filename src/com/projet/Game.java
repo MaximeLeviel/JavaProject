@@ -154,15 +154,15 @@ public class Game {
         System.out.println("\nAttacker:\nPlayer " + (attacker.getPlayerID() + 1) + "\nNumber of dices: " + attacker.getStrength());
         System.out.println("\nDefender:\nPlayer " + (defender.getPlayerID() + 1) + "\nNumber of dices: " + defender.getStrength());
 
-        System.out.println("Press any key to through the dices");
+        System.out.println("Press enter to through the dices");
         Scanner sc = new Scanner(System.in);
         String input = sc.nextLine();
 
         int diceAttacker = throwDices(attacker.getStrength());
         int diceDefender = throwDices(defender.getStrength());
 
-        System.out.println("Dices of the attacker :" + diceAttacker);
-        System.out.println("Dices of the defender :" + diceDefender);
+        System.out.println("Dices of the attacker : " + diceAttacker);
+        System.out.println("Dices of the defender : " + diceDefender);
 
         if(diceAttacker > diceDefender){
             System.out.println("The attacker won the battle, the territory " + (defender.getID()) + " now belongs to player " + (playerAttacker.getID() + 1));
@@ -174,14 +174,9 @@ public class Game {
             playerDefender.deleteToTerritories(defender.getID()); //We remove the territory from the defender
         }
         else{
-            System.out.println("The attacker looses the battle");
+            System.out.println("The attacker looses the battle, player number " + (attacker.getPlayerID() + 1) + " looses " + (attacker.getStrength()-1) + " dices");
             win = false;
             attacker.setStrength(1); //We replace the dices of the attacking territories by 1
-
-            //Just for better display
-            System.out.println("Press any key to continue");
-            sc = new Scanner(System.in);
-            input = sc.nextLine();
         }
         return win;
     }
@@ -192,7 +187,7 @@ public class Game {
         do {
             int nbPlayer, line, column;
 
-            System.out.println("======================= WELCOME TO RISK =======================\n");
+            System.out.println("=================================== WELCOME TO RISK ===================================\n");
 
             System.out.println("-------------- NUMBER OF PLAYERS --------------\n");
             nbPlayer = checkInput(2, 6);
@@ -206,7 +201,7 @@ public class Game {
             int nbTerritories = line*column;
 
             //Creation of the game
-            System.out.println("-------------- SETTINGS --------------\n");
+            System.out.println("\n------------- NAME OF THE PLAYERS -------------");
             Game game = new Game(nbPlayer, nbTerritories);
 
             //Creation of the map
@@ -218,29 +213,40 @@ public class Game {
             game.initMap(myMap.map); //Fill the territories with a strength and a
 
             //Display
+            System.out.println("\n----------------------------------------- INITIALIZATION -----------------------------------------\n");
             game.displayMap(myMap.map);
             game.displayPlayers();
 
-            System.out.println("\n-------------------- START OF THE GAME --------------------");
+            //Just for better display
+            System.out.println("Press enter to continue");
+            Scanner sc = new Scanner(System.in);
+            String input = sc.nextLine();
+
+
+            System.out.println("\n------------------------------------ START OF THE GAME ------------------------------------");
             int player = (int) (Math.random() * nbPlayer);
             System.out.println("Player " + (player+1) + " will begin:");
-            int test = 0;
             do{
                 boolean win;
+                int turn = 1;
                 do{
                     game.displayMap(myMap.map);
                     ArrayList<Integer> listAttack = new ArrayList<>();
-                    listAttack = game.players.get(player).attackTerritories();
-                    System.out.println("attacker " + listAttack.get(0));
-                    System.out.println("defender " + listAttack.get(1));
-                    win = game.attack(game.players.get(player), listAttack, myMap.map);
+                    listAttack = game.players.get(player).attackTerritories(); //select the territory that will attack and the defender
+                    win = game.attack(game.players.get(player), listAttack, myMap.map); //launch the attack
+
+                    //Just for better display
+                    System.out.println("Press the enter key to continue");
+                    sc = new Scanner(System.in);
+                    input = sc.nextLine();
 
                     if(win){
-                        System.out.println("Do you want to attack again ? 1. Yes 0. No");
-                        test = checkInput(0, 1);
+                        game.displayMap(myMap.map);
+                        System.out.println(game.players.get(player));
+                        turn = game.players.get(player).endTurn(game);
                     }
                 }
-                while(win && test != 0);//while (!endTurn || !win) //TODO : implémenter endTurn (qui est complétement con a faire dans Player si vous voulez mon avis ....)
+                while(win && turn != 0);
 
                 //TODO : implémenter le gains de dés a la fin d'un tour
                 if(player != (nbPlayer-1)){//We go to the next player
@@ -248,12 +254,11 @@ public class Game {
                 }
                 else{
                     player = 0; //We go back to first player
-
                 }
             }
             while(!game.endCondition());
 
-            System.out.println("\n--------------------- END OF THE GAME ---------------------");
+            System.out.println("\n------------------------------------ END OF THE GAME ------------------------------------");
             System.out.println("Do you want to start a new game ? : 1. Yes  2. No");
             opt = checkInput(1, 2);
         }

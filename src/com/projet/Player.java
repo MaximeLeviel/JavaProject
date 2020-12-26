@@ -75,9 +75,9 @@ public class Player {
                 }
             }
         }
-        System.out.println("\n--------------------- ATTACK OF PLAYER " + (this.ID + 1) + " ---------------------");
+        System.out.print("\n--------------------- PLAYER " + (this.ID + 1) + ", IT'S TIME TO ATTACK ! ---------------------");
         System.out.println(this);
-        System.out.println("Which territory will attack ?");
+        System.out.println("From which territory will you attack ?");
         int attacker = checkList(listAttack);
 
         listAttack.clear(); //Clear to use it as the List of IDs of territories that can be attacked from a selected territory
@@ -96,8 +96,13 @@ public class Player {
         listAttack.add(defender);
         return listAttack;
     }
-
-
+    //Je comprend pas pk on doit mettre cette foncton dans player c'est complétement inutile ..... (-_-)
+    public int endTurn(Game game){//We must have access to game to use the function checkinput
+        int turn = 1;
+        System.out.println("Do you want to attack again ? 1. Yes 0. No");
+        turn = Game.checkInput(0, 1);
+        return turn;
+    }
 
 
     @Override
