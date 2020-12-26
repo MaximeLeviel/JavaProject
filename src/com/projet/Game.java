@@ -2,6 +2,7 @@ package com.projet;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -181,6 +182,41 @@ public class Game {
         return win;
     }
 
+    public void bonusDices(Player player){
+        HashMap< Integer, ArrayList<Territory> > contiguous = new HashMap<>();//Map with key = ID of each territory in territories and Value = direct contiguous territories
+        for (Map.Entry<Integer, Territory> entry : player.getTerritories().entrySet()) { //for each territory of player
+            contiguous.put(entry.getKey(), new ArrayList<>()); //We create an array which represents their direct contiguous territories that belong to the player
+            contiguous.get(entry.getKey()).add(entry.getValue());//We add the studied territory to the array of contiguous territories
+            for(Integer neighbor : entry.getValue().getNeighbors()){//for each neighbor of the territory
+                if (player.getTerritories().containsKey(neighbor)){//If the neighbor territory belongs to the player
+                    contiguous.get(entry.getKey()).add(player.getTerritories().get(neighbor));//add the territory to the array
+                }
+            }
+        }
+
+        for (Map.Entry<Integer, ArrayList<Territory>> entry : contiguous.entrySet()) {
+            int cpt = 1;
+            //TODO : optimiser pour ne pas checker les territoires qui on déja été checker dans entry precedent
+            while(cpt < contiguous.get(entry.getKey()).size()){
+                //TODO : optimiser pour ne pas checker index 1
+                for(Territory territory : contiguous.get(entry.getValue().get(cpt).getID())){//adds the not direct contiguous territories to contiguous
+                    if(!entry.getValue().contains(territory)){//if the territory is not already in the list of contiguous then we add it
+                        entry.getValue().add(territory);
+                    }
+                }
+                cpt++;
+            }
+        }
+        int maxContiguous = 1;
+        for (Map.Entry<Integer, ArrayList<Territory>> entry : contiguous.entrySet()) {
+            if ((entry.getValue().size() > maxContiguous)){
+                maxContiguous = entry.getValue().size();
+            }
+        }
+        System.out.println("You get a bonus of " + maxContiguous + " dices");
+        //TODO : ajouter les dés bonus au player
+    }
+
     //MAIN
     public static void main(String[] Arg){
         int opt = 1;
@@ -226,6 +262,7 @@ public class Game {
             System.out.println("\n------------------------------------ START OF THE GAME ------------------------------------");
             int player = (int) (Math.random() * nbPlayer);
             System.out.println("Player " + (player+1) + " will begin:");
+
             do{
                 boolean win;
                 int turn = 1;
@@ -244,11 +281,20 @@ public class Game {
                         game.displayMap(myMap.map);
                         System.out.println(game.players.get(player));
                         turn = game.players.get(player).endTurn(game);
+                        if(turn == 0){
+                            game.bonusDices(game.players.get(player)); //If player decides to stop, they get bonus dices
+
+                            //Just for better display
+                            System.out.println("Press the enter key to continue");
+                            sc = new Scanner(System.in);
+                            input = sc.nextLine();
+                        }
                     }
                 }
                 while(win && turn != 0);
 
-                //TODO : implémenter le gains de dés a la fin d'un tour
+
+                //TODO : prendre en compte quand un player n'a plus de territoire (pour les tours et pour stopper tour)
                 if(player != (nbPlayer-1)){//We go to the next player
                     player = player + 1;
                 }
