@@ -311,6 +311,7 @@ public class Game {
                         if(listAttack.size() != 0){//If the player can attack
                             win = game.attack(game.players.get(player), listAttack, myMap.map); //launch the attack
                         }
+                        //TODO : ne pas redemander au player s'il veut attaquer s'il ne peut pas
                     }
 
                     else{//If the player wants to stop attacking

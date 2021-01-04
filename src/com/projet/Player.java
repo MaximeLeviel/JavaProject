@@ -63,7 +63,6 @@ public class Player {
     }
 
     //Ask the user for the territory which will attack and the territory which will defend
-    //TODO : if no territory can attack
     public ArrayList<Integer> attackTerritories(){
         ArrayList<Integer> listAttack = new ArrayList<>();//List of IDs of territories that can attack
         for (Map.Entry<Integer, Territory> entry : territories.entrySet()){//For each territory of the player
@@ -96,7 +95,6 @@ public class Player {
             }
         }
         System.out.println("Which territory do you want to attack ?");
-        //TODO : faire en sorte que le joueur puisse voir le nombre de dés des territoires voisins
         //TODO : pouvoir retourner en arrière pour selectionner un autre territoire
         int defender = checkList(listAttack);
 
