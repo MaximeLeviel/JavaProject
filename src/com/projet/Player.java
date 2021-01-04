@@ -30,6 +30,10 @@ public class Player {
         return this.ID;
     }
 
+    public String getName(){
+        return this.name;
+    }
+
     //Setters
     public void setNbDices(int _nbDices){
         this.nbDices = _nbDices;
@@ -37,7 +41,6 @@ public class Player {
     public void addToTerritories(Territory value){
         this.territories.put(value.getID(),value);
     }
-
     public void deleteToTerritories(int index){
         this.territories.remove(index);
     }
@@ -45,21 +48,22 @@ public class Player {
     //Methods
 
     //Check the inputs of the user if expected an integer with an array of possible values
-    public static int checkList(ArrayList<Integer> t){
+    public static int checkList(ArrayList<Integer> list){
         int input;
         Scanner sc = new Scanner(System.in);
         do {
-            System.out.println("The number must be between this values : " + t);
+            System.out.println("The number must be between this values : " + list);
             while (!sc.hasNextInt()) {
                 System.out.println("Please enter an integer: ");
                 sc.next(); // delete the last scanner
             }
             input = sc.nextInt();
-        } while (!t.contains(input));
+        } while (!list.contains(input));
         return input;
     }
 
     //Ask the user for the territory which will attack and the territory which will defend
+    //TODO : if no territory can attack
     public ArrayList<Integer> attackTerritories(){
         ArrayList<Integer> listAttack = new ArrayList<>();//List of IDs of territories that can attack
         for (Map.Entry<Integer, Territory> entry : territories.entrySet()){//For each territory of the player
@@ -75,9 +79,14 @@ public class Player {
                 }
             }
         }
-        System.out.print("\n--------------------- PLAYER " + (this.ID + 1) + ", IT'S TIME TO ATTACK ! ---------------------");
-        System.out.println(this);
         System.out.println("From which territory will you attack ?");
+
+        //If no territories can attack
+        if (listAttack.size() == 0){
+            System.out.println("Sorry you can not attack in this conditions, maybe next time ^^'");
+            return listAttack;
+        }
+
         int attacker = checkList(listAttack);
 
         listAttack.clear(); //Clear to use it as the List of IDs of territories that can be attacked from a selected territory
@@ -96,10 +105,10 @@ public class Player {
         listAttack.add(defender);
         return listAttack;
     }
-    //Je comprend pas pk on doit mettre cette foncton dans player c'est complétement inutile ..... (-_-)
+
     public int endTurn(Game game){//We must have access to game to use the function checkinput
         int turn = 1;
-        System.out.println("Do you want to attack again ? 1. Yes 0. No");
+        System.out.println("Do you want to attack ? 1. Yes 0. No");
         turn = Game.checkInput(0, 1);
         return turn;
     }
@@ -119,6 +128,7 @@ public class Player {
             result.append(value.displayForPlayer());
             result.append("\n");
         }
+        result.append("---------------------------------------------------------");
 
         //result.append(territories); Plus détaillé mais prend plus de place
         System.out.println("\n");
