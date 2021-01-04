@@ -67,13 +67,13 @@ public class Territory {
     public String toString() {
         StringBuilder result = new StringBuilder("\n\n------ Territory ");
         result.append(ID);
-        result.append("------");
+        result.append(" ------");
         result.append("\nStrength: ");
         result.append(strength);
         result.append("\nNeigbors: ");
         result.append(neighbors);
         result.append("\nBelongs to player: ");
-        result.append(playerID);
+        result.append(playerID+1);
         System.out.println("\n");
         return result.toString();
     }

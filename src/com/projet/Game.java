@@ -1,10 +1,7 @@
 package com.projet;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class Game {
     //Attributes
@@ -182,6 +179,38 @@ public class Game {
         return win;
     }
 
+    //Distribute the bonus dices to the territories
+    public void distributeDices(Player player, int bonusDices){
+
+        //If the number of dices with the bonus dices is greater than 8 dices per territory
+        if ((player.getNbDices() + bonusDices) > 8 * player.getTerritories().size()){
+            System.out.println("You are too good !, you're territories can not take all of the bonusDices");
+            for (Map.Entry<Integer, Territory> entry : player.getTerritories().entrySet()) {
+                entry.getValue().setStrength(8);//We set the strength of all territories to 8 as a maximum
+            }
+            player.setNbDices(8 * player.getTerritories().size()); //We set the number of dices to its maximum
+        }
+
+        else{
+            Territory territory;
+            Integer randomKey;
+            Random random;
+            List<Integer> keys = new ArrayList<Integer>(player.getTerritories().keySet()); //Make a list of the keys to chose randomly
+
+            for(int i = 0; i < bonusDices; i++){//For each bonus dice
+                do{
+                    random = new Random();
+                    randomKey = keys.get( random.nextInt(keys.size()) );
+                    territory = player.getTerritories().get(randomKey);
+                }while(territory.getStrength() == 8); //if the territory has already 8 dices draw again
+                territory.setStrength(territory.getStrength()+1);//Add one dice to the territory
+            }
+            player.setNbDices(player.getNbDices() + bonusDices);//Add the bonusDices to the number of dices
+        }
+        System.out.println(player);
+    }
+
+    //Compute the number of bonus dices to add
     public void bonusDices(Player player){
         HashMap< Integer, ArrayList<Territory> > contiguous = new HashMap<>();//Map with key = ID of each territory in territories and Value = direct contiguous territories
         for (Map.Entry<Integer, Territory> entry : player.getTerritories().entrySet()) { //for each territory of player
@@ -214,7 +243,7 @@ public class Game {
             }
         }
         System.out.println("You get a bonus of " + maxContiguous + " dices");
-        //TODO : ajouter les dés bonus au player
+        distributeDices(player, maxContiguous);//call the function to distribute the dices randomly
     }
 
     //MAIN
