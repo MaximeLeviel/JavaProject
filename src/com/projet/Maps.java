@@ -1,14 +1,53 @@
 package com.projet;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 public class Maps {
     //Attributes
     public Territory[][] map;
 
     //Constructor
-    //TODO : Constructor avec map CSV
+    Maps(String path){
+        ArrayList<ArrayList<Territory>> tmpMap = new ArrayList<>();
+        try {
+            File CSV = new File(path);
+            Scanner table = new Scanner(CSV);
+            int i = 0;
+            while (true){
+                String line = table.nextLine();
+                String[] elements = line.split(",");
+
+                tmpMap.add(new ArrayList<>());
+
+                for(int j = 0; j < elements.length; j++){
+                    String[] datastr1 = elements[j].split("-");
+                    int id = Integer.parseInt(datastr1[0]);
+                    String[] datastr2 = datastr1[1].split("/");
+                    ArrayList<Integer> data = new ArrayList<>();
+                    for (int z = 0; z < datastr2.length; z++){
+                        data.add(Integer.parseInt(datastr2[z]));
+                    }
+                    tmpMap.get(i).add(new Territory(id,  0, 0, data));
+                }
+                i++;
+            }
+        } catch (FileNotFoundException e) {
+            System.out.print("The file with the specified name doesn't exist, please specify a new one. \n");
+        } catch (NoSuchElementException e){
+            this.map = new Territory[tmpMap.size()][tmpMap.get(0).size()];
+            for (int i = 0; i < this.map.length; i++){//convert the temporary ArrayList into final Array
+                for (int j = 0; j < this.map[i].length; j++){
+                    this.map[i][j] = tmpMap.get(i).get(j);
+                }
+            }
+            System.out.print("The map was successfully loaded. \n");
+        }
+    }
 
     public Maps(int line, int column){
         this.map = new Territory[line][column];
