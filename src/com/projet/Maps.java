@@ -26,7 +26,13 @@ public class Maps {
 
                 for(int j = 0; j < elements.length; j++){
                     String[] datastr1 = elements[j].split("-");
-                    int id = Integer.parseInt(datastr1[0]);
+                    int id;
+                    if (j == 0 && i == 0){
+                        id = Integer.parseInt(datastr1[0].substring(1, 2));
+                    }
+                    else{
+                        id = Integer.parseInt(datastr1[0]);
+                    }
                     String[] datastr2 = datastr1[1].split("/");
                     ArrayList<Integer> data = new ArrayList<>();
                     for (int z = 0; z < datastr2.length; z++){

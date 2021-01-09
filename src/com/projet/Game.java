@@ -249,6 +249,9 @@ public class Game {
         distributeDices(player, maxContiguous);//call the function to distribute the dices randomly
     }
 
+    public int getNbTerritories(){
+        return this.nbTerritories;
+    }
     //MAIN
     public static void main(String[] Arg){
         int opt = 1;
@@ -261,20 +264,35 @@ public class Game {
             nbPlayer = checkInput(2, 6);
             System.out.println("\nNumber of players: " + nbPlayer);
 
-            System.out.println("\n--------------- SIZE OF THE MAP ---------------\n");
-            System.out.println("Enter the number of lines: ");
-            line = checkInput(4, 9);
-            System.out.println("Enter the number of columns: ");
-            column = checkInput(4, 10);
-            int nbTerritories = line*column;
+            int nbTerritories;
+
+            //Creation of the map
+            Maps myMap;
+            System.out.print("\nDo you want to load the map from a CSV file ? \n0.Yes\n1.No");
+            Scanner sc = new Scanner(System.in);
+            int response = sc.nextInt();
+            sc.nextLine();
+            if (response == 0){
+                System.out.print("\nEnter the name of the CSV file.\n");
+                String name = sc.nextLine();
+                myMap = new Maps(name + ".csv");
+                nbTerritories = myMap.map.length * myMap.map[0].length;
+            }
+            else{
+                System.out.println("\n--------------- SIZE OF THE MAP ---------------\n");
+                System.out.println("Enter the number of lines: ");
+                line = checkInput(4, 9);
+                System.out.println("Enter the number of columns: ");
+                column = checkInput(4, 10);
+                nbTerritories = line*column;
+
+                myMap = new Maps(line, column); //Create a map of dimension line*column (empty)
+                myMap.createMap(); //Fill the map with Territories ID
+            }
 
             //Creation of the game
             System.out.println("\n------------- NAME OF THE PLAYERS -------------");
             Game game = new Game(nbPlayer, nbTerritories);
-
-            //Creation of the map
-            Maps myMap = new Maps(line, column); //Create a map of dimension line*column (empty)
-            myMap.createMap(); //Fill the map with Territories ID
 
             //Creation of the players
             game.createPlayers();
@@ -287,7 +305,6 @@ public class Game {
 
             //Just for better display
             System.out.println("Press enter to continue");
-            Scanner sc = new Scanner(System.in);
             String input = sc.nextLine();
 
 
