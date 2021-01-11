@@ -39,28 +39,29 @@ public class Game {
 
     //Methods for map
     public void initMap(Territory[][] map){ //Give the strength and players to each territory
-        int remainder = nbTerritories % nbPlayer;
+        int excess = nbTerritories % nbPlayer;
         int totalDices = (nbTerritories/nbPlayer)*5; //Number of dices per player = average of 5 dices per territory
         int player, strength;
 
-        //Dispatch the different territories equally (or add the excess randomly)
+        //Dispatch the different territories equally
         int cpt = 1;
         for (Territory[] territories : map) {
             for (int j = 0; j < map[0].length; j++) {
-                if(cpt <= nbTerritories - remainder){//Associate the same number of territories for each players
+                if (cpt <= nbTerritories - excess){
                     do {
-                        player = (int) (Math.random() * nbPlayer); //associate a random player (from 0 to nbPlayer -1)
+                        player = (int) (Math.random() * (nbPlayer)); //associate a random player (from 0 to nbPlayer-1)
                     }
                     while (players.get(player).getTerritories().size() >= (nbTerritories / nbPlayer)); //if player has already its maximum number of territories (nbTerritories/nbPlayers) pull another player
+                    players.get(player).addToTerritories(territories[j]);//associate the territory to the player
                 }
-                else{//Associate the remaining territories in excess randomly
-                    player = (int) (Math.random() * nbPlayer);
+                else{
+                    player = -1;
                 }
-                players.get(player).addToTerritories(territories[j]);//associate the territory to the player
                 territories[j].setPlayerID(player);//associate the player's ID to the territory
                 cpt++;
             }
         }
+
 
         //Dispatch the dices to the territories for each players
         for (Player p : players) {
@@ -99,14 +100,14 @@ public class Game {
     public boolean endCondition(){
         //If a player has all territories
         for(Player player : players){
-            if(player.getTerritories().size() == nbTerritories){
-                return true;
+            int var = nbTerritories % nbPlayer; //number of territories not distributed
+            if(player.getTerritories().size() == nbTerritories - var){ //If a player has all territories except the ones not distributes
+                return true;//Then the game ends
             }
         }
         return false;
     }
 
-    //START A GAME
     public static int checkInput(int min, int max){ //Check the inputs of the user if expected an integer with min and max values
         int input;
         Scanner sc = new Scanner(System.in);
@@ -249,12 +250,6 @@ public class Game {
         distributeDices(player, maxContiguous);//call the function to distribute the dices randomly
     }
 
-    public int getNbTerritories(){
-        return this.nbTerritories;
-    }
-
-
-
     //MAIN
     public static void main(String[] Arg){
         int opt = 1;
@@ -271,10 +266,10 @@ public class Game {
 
             //Creation of the map
             Maps myMap;
-            System.out.print("\nDo you want to load the map from a CSV file ? \n0.Yes\n1.No");
+            System.out.println("\nDo you want to load the map from a CSV file ? \n0.Yes\n1.No");
             Scanner sc = new Scanner(System.in);
-            int response = sc.nextInt();
-            sc.nextLine();
+            int response = checkInput(0,1);
+
             if (response == 0){
                 System.out.print("\nEnter the name of the CSV file.\n");
                 String name = sc.nextLine();
@@ -299,7 +294,10 @@ public class Game {
 
             //Creation of the players
             game.createPlayers();
+            System.out.println("TEST START CREATE MAP");
             game.initMap(myMap.map); //Fill the territories with a strength and a
+            System.out.println("TEST END CREATE MAP");
+
 
             //Display
             System.out.println("\n----------------------------------------- INITIALIZATION -----------------------------------------\n");

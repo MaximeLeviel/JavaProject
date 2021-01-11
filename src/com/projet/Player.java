@@ -63,6 +63,8 @@ public class Player {
     }
 
     //Ask the user for the territory which will attack and the territory which will defend
+    //TODO : raise exceptions instead of if
+    //TODO : raise an exception if territory is a -1 (blocked territories)
     public ArrayList<Integer> attackTerritories(){
         ArrayList<Integer> listAttack = new ArrayList<>();//List of IDs of territories that can attack
         for (Map.Entry<Integer, Territory> entry : territories.entrySet()){//For each territory of the player
