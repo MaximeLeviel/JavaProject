@@ -252,6 +252,9 @@ public class Game {
     public int getNbTerritories(){
         return this.nbTerritories;
     }
+
+
+
     //MAIN
     public static void main(String[] Arg){
         int opt = 1;
