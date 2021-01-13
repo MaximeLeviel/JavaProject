@@ -4,9 +4,9 @@ import java.util.*;
 
 public class Game {
     //Attributes
-    private final int nbPlayer;
-    private final int nbTerritories;
-    private ArrayList<Player> players;
+    protected final int nbPlayer;
+    protected final int nbTerritories;
+    protected ArrayList<Player> players;
 
     //Constructor
     public Game(int _nbPlayer, int _nbTerritories) {
