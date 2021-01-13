@@ -62,7 +62,7 @@ public class Player {
         return input;
     }
 
-    public static int checkList2(ArrayList<Integer> list) throws OutOfListException, NegativeInputException {
+    public static int checkList2(ArrayList<Integer> list) throws OutOfListException, ZeroInputException {
         int input;
         Scanner sc = new Scanner(System.in);
         System.out.println("The number must be between this values : " + list);
@@ -71,8 +71,8 @@ public class Player {
             sc.next(); // delete the last scanner
         };
         input = sc.nextInt();
-        if(input < 0){
-            throw new NegativeInputException("The input is negative.");
+        if(input == 0){
+            throw new ZeroInputException("The input is negative.");
         }
         if(!list.contains(input)){
             throw new OutOfListException("Input out of list.");
@@ -81,7 +81,6 @@ public class Player {
     }
 
     //Ask the user for the territory which will attack and the territory which will defend
-    //TODO : raise exceptions instead of if
     //TODO : raise an exception if territory is a -1 (blocked territories)
     public ArrayList<Integer> attackTerritories(){
         ArrayList<Integer> listAttack = new ArrayList<>();//List of IDs of territories that can attack
@@ -109,8 +108,8 @@ public class Player {
                     listAttack.add(n);
                 }
             }
-            System.out.println("Which territory do you want to attack ? (Enter -1 if you want to change the territory you attack from.");
-            //TODO : pouvoir retourner en arrière pour selectionner un autre territoire
+            System.out.println("Which territory do you want to attack ? (Enter 0 if you want to change the territory you attack from.");
+
             int defender;
 
             while(true){ //keep asking user if wrong selected territory
@@ -121,7 +120,7 @@ public class Player {
                 catch (OutOfListException e) {
                     System.out.print("You can't attack the territory you chose. Please select one in the list.\n");
                 }
-                catch (NegativeInputException e){
+                catch (ZeroInputException e){
                     return attackTerritories();
                 }
             }
@@ -152,7 +151,7 @@ public class Player {
                 attacker = checkList2(listAttack);
                 break;//stop the while if no exception
             }
-            catch(OutOfListException | NegativeInputException e){
+            catch(OutOfListException | ZeroInputException e){
                 System.out.print("You can't attack from the territory you chose. Please select one in the list.\n");
             }
         }
@@ -173,8 +172,8 @@ public class Player {
         }
     }
 
-    public static class NegativeInputException extends Throwable {
-        public NegativeInputException(String errorMessage){
+    public static class ZeroInputException extends Throwable {
+        public ZeroInputException(String errorMessage){
             super(errorMessage);
         }
     }
