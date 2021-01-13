@@ -251,7 +251,7 @@ public class Game {
     }
 
     //MAIN
-    public static void main(String[] Arg){
+    public static void main(String[] Arg) {
         int opt = 1;
         do {
             int nbPlayer, line, column;
@@ -294,9 +294,9 @@ public class Game {
 
             //Creation of the players
             game.createPlayers();
-            System.out.println("TEST START CREATE MAP");
-            game.initMap(myMap.map); //Fill the territories with a strength and a
-            System.out.println("TEST END CREATE MAP");
+            game.initMap(myMap.map); //Fill the territories with a strength and a player's ID
+            myMap.initNeighbors(); //Fill the neighbors for each territory
+
 
 
             //Display

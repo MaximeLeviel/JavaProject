@@ -90,13 +90,7 @@ public class Player {
 
             for(Integer n : territories.get(attacker).getNeighbors()){//for all neighbors of the attacker territory
                 if(!territories.containsKey(n)){//Only select those who don't belong to the player
-                    try{
-                        if(myMap.findPlayerById(n) != -1){
-                            listAttack.add(n);
-                        }
-                    } catch (Maps.NonexistentIdException e) {
-                        System.out.println("Oops. Something wrong happened.");
-                    }
+                    listAttack.add(n);
                 }
             }
             System.out.println("Which territory do you want to attack ? (Enter 0 if you want to change the territory you attack from)");
@@ -194,7 +188,6 @@ public class Player {
         }
         result.append("---------------------------------------------------------");
 
-        //result.append(territories); Plus détaillé mais prend plus de place
         System.out.println("\n");
         return result.toString();
     }

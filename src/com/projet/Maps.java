@@ -11,7 +11,7 @@ public class Maps {
     public Territory[][] map;
 
     //Constructor
-    Maps(String path){
+    Maps(String path){//Load a map from a CSV file
         ArrayList<ArrayList<Territory>> tmpMap = new ArrayList<>();
         try {
             File CSV = new File(path);
@@ -58,19 +58,29 @@ public class Maps {
         this.map = new Territory[line][column];
     } //Create an empty 2D array
 
-    //Methods
+    //Fill the neighbors for each territories
+    public void initNeighbors(){
+        for(int i = 0; i < this.map.length; i++){
+            for(int j = 0; j < this.map[0].length; j++){
+                this.map[i][j].setNeighbors(defineNeighbors(i,j)); //add the neighbors
+            }
+        }
+    }
+
+    //returns an array of the ID of the neighbors of a given territory
     public ArrayList<Integer> defineNeighbors(int i, int j){
         ArrayList<Integer> neighbors = new ArrayList<>();
-        if (i != 0){//if the Territory is not at the first line = has neighbor at the top
+        //We check for each neighbors if the player's ID is not -1 => blocked territory => not a neighbor
+        if (i != 0 && (this.map[i-1][j].getPlayerID() != -1)){//if the Territory is not at the first line = has neighbor at the top
             neighbors.add(this.map[i-1][j].getID());
         }
-        if (i != this.map.length-1){//if the Territory is not at the last line = has neighbor at the bottom
+        if (i != this.map.length-1 && (this.map[i+1][j].getPlayerID() != -1)){//if the Territory is not at the last line = has neighbor at the bottom
             neighbors.add(this.map[i+1][j].getID());
         }
-        if(j != 0){
+        if(j != 0 && (this.map[i][j-1].getPlayerID() != -1)){
             neighbors.add(this.map[i][j-1].getID());
         }
-        if (j != ((this.map[0].length) - 1)){//if the Territory is not at the last column = has neighbor at the right
+        if (j != ((this.map[0].length) - 1) && (this.map[i][j+1].getPlayerID() != -1)){//if the Territory is not at the last column = has neighbor at the right
             neighbors.add(this.map[i][j+1].getID());
         }
         return neighbors;
@@ -84,17 +94,13 @@ public class Maps {
                 cpt++;
             }
         }
-        for(int i = 0; i < this.map.length; i++){
-            for(int j = 0; j < this.map[0].length; j++){
-                this.map[i][j].setNeighbors(defineNeighbors(i,j)); //add the neighbors
-            }
-        }
     }
 
     public int findPlayerById(int id) throws NonexistentIdException {
         for (Territory[] territories : this.map) {
             for (Territory territory : territories) {
-                return territory.getPlayerID();
+                if(id == territory.getID())
+                    return territory.getPlayerID();
             }
         }
         throw new NonexistentIdException("Id doesn't exist.");
