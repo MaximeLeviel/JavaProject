@@ -34,8 +34,8 @@ public class Maps {
                     }
                     String[] datastr2 = datastr1[1].split("/");
                     ArrayList<Integer> data = new ArrayList<>();
-                    for (int z = 0; z < datastr2.length; z++){
-                        data.add(Integer.parseInt(datastr2[z]));
+                    for (String s : datastr2) {
+                        data.add(Integer.parseInt(s));
                     }
                     tmpMap.get(i).add(new Territory(id,  0, 0, data));
                 }
@@ -92,9 +92,9 @@ public class Maps {
     }
 
     public int findPlayerById(int id) throws NonexistentIdException {
-        for(int i = 0; i < this.map.length; i++){
-            for(int j = 0; j < this.map[i].length; j++){
-                return map[i][j].getPlayerID();
+        for (Territory[] territories : this.map) {
+            for (Territory territory : territories) {
+                return territory.getPlayerID();
             }
         }
         throw new NonexistentIdException("Id doesn't exist.");

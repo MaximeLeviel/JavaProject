@@ -1,6 +1,5 @@
 package com.projet;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Game {
@@ -38,6 +37,7 @@ public class Game {
     }
 
     //Methods for map
+    //TODO : randomisé les territoires bloqués
     public void initMap(Territory[][] map){ //Give the strength and players to each territory
         int excess = nbTerritories % nbPlayer;
         int totalDices = (nbTerritories/nbPlayer)*5; //Number of dices per player = average of 5 dices per territory
@@ -329,7 +329,11 @@ public class Game {
                         if(listAttack != null && listAttack.size() != 0){//If the player can attack
                             win = game.attack(game.players.get(player), listAttack, myMap.map); //launch the attack
                         }
-                        //TODO : ne pas redemander au player s'il veut attaquer s'il ne peut pas
+
+                        else{
+                            game.bonusDices(game.players.get(player)); //If player decides to stop, they get bonus dices
+                            turn = 0;
+                        }
                     }
 
                     else{//If the player wants to stop attacking

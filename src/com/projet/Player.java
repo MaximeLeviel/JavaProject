@@ -6,7 +6,7 @@ public class Player {
     //Attributes
     private final int ID;
     private final String name;
-    private TreeMap<Integer, Territory> territories;
+    private final TreeMap<Integer, Territory> territories;
     private int nbDices;
 
     //Constructor
@@ -48,21 +48,7 @@ public class Player {
     //Methods
 
     //Check the inputs of the user if expected an integer with an array of possible values
-    public static int checkList(ArrayList<Integer> list){
-        int input;
-        Scanner sc = new Scanner(System.in);
-        do {
-            System.out.println("The number must be between this values : " + list);
-            while (!sc.hasNextInt()) {
-                System.out.println("Please enter an integer: ");
-                sc.next(); // delete the last scanner
-            }
-            input = sc.nextInt();
-        } while (!list.contains(input));
-        return input;
-    }
-
-    public static int checkList2(ArrayList<Integer> list) throws OutOfListException, ZeroInputException {
+    public static int checkList(ArrayList<Integer> list) throws OutOfListException, ZeroInputException {
         int input;
         Scanner sc = new Scanner(System.in);
         System.out.println("The number must be between this values : " + list);
@@ -109,21 +95,21 @@ public class Player {
                             listAttack.add(n);
                         }
                     } catch (Maps.NonexistentIdException e) {
-                        System.out.print("Oops. Something wrong happened.");
+                        System.out.println("Oops. Something wrong happened.");
                     }
                 }
             }
-            System.out.println("Which territory do you want to attack ? (Enter 0 if you want to change the territory you attack from.");
+            System.out.println("Which territory do you want to attack ? (Enter 0 if you want to change the territory you attack from)");
 
             int defender;
 
             while(true){ //keep asking user if wrong selected territory
                 try{
-                    defender = checkList2(listAttack);
+                    defender = checkList(listAttack);
                     break;//stop the while if no exception
                 }
                 catch (OutOfListException e) {
-                    System.out.print("You can't attack the territory you chose. Please select one in the list.\n");
+                    System.out.println("You can't attack the territory you chose. Please select one in the list.");
                 }
                 catch (ZeroInputException e){
                     return attackTerritories(myMap);
@@ -142,18 +128,19 @@ public class Player {
     }
 
     private int attackFrom(ArrayList<Integer> listAttack) throws ImpossibleAttackException{
-        System.out.println("From which territory will you attack ?");
 
         //If no territories can attack
         if (listAttack.size() == 0){
             throw new ImpossibleAttackException("Impossible attack.");
         }
 
+        System.out.println("From which territory will you attack ?");
+
         int attacker;
 
         while(true){ //keep asking user if wrong selected territory
             try{
-                attacker = checkList2(listAttack);
+                attacker = checkList(listAttack);
                 break;//stop the while if no exception
             }
             catch(OutOfListException | ZeroInputException e){

@@ -1,6 +1,5 @@
 package com.projet;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Territory {
@@ -58,12 +57,10 @@ public class Territory {
     }
 
     public String displayForPlayer(){
-        StringBuilder result = new StringBuilder("Territory [" + this.ID + "]: strength {" + this.strength + "} neighbors: ");
-        result.append(neighbors);
-        return result.toString();
+        return "Territory [" + this.ID + "]: strength {" + this.strength + "} neighbors: " + neighbors;
     }
 
-    @Override // A voir si utile plus tard
+    @Override
     public String toString() {
         StringBuilder result = new StringBuilder("\n\n------ Territory ");
         result.append(ID);
