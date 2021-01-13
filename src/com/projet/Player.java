@@ -62,6 +62,24 @@ public class Player {
         return input;
     }
 
+    public static int checkList2(ArrayList<Integer> list) throws OutOfListException, NegativeInputException {
+        int input;
+        Scanner sc = new Scanner(System.in);
+        System.out.println("The number must be between this values : " + list);
+        while (!sc.hasNextInt()) {
+            System.out.println("Please enter an integer: ");
+            sc.next(); // delete the last scanner
+        };
+        input = sc.nextInt();
+        if(input < 0){
+            throw new NegativeInputException("The input is negative.");
+        }
+        if(!list.contains(input)){
+            throw new OutOfListException("Input out of list.");
+        }
+        return input;
+    }
+
     //Ask the user for the territory which will attack and the territory which will defend
     //TODO : raise exceptions instead of if
     //TODO : raise an exception if territory is a -1 (blocked territories)
@@ -80,30 +98,85 @@ public class Player {
                 }
             }
         }
+
+        int attacker;
+
+        try{
+            attacker = attackFrom(listAttack);
+
+            for(Integer n : territories.get(attacker).getNeighbors()){//for all neighbors of the attacker territory
+                if(!territories.containsKey(n)){//Only select those who don't belong to the player
+                    listAttack.add(n);
+                }
+            }
+            System.out.println("Which territory do you want to attack ? (Enter -1 if you want to change the territory you attack from.");
+            //TODO : pouvoir retourner en arrière pour selectionner un autre territoire
+            int defender;
+
+            while(true){ //keep asking user if wrong selected territory
+                try{
+                    defender = checkList2(listAttack);
+                    break;//stop the while if no exception
+                }
+                catch (OutOfListException e) {
+                    System.out.print("You can't attack the territory you chose. Please select one in the list.\n");
+                }
+                catch (NegativeInputException e){
+                    return attackTerritories();
+                }
+            }
+
+            listAttack.clear();//We reuse listAttack to return 2 variables
+            listAttack.add(attacker);
+            listAttack.add(defender);
+            return listAttack;
+        }
+        catch (ImpossibleAttackException e){
+            System.out.println("Sorry you can not attack in this conditions, maybe next time ^^'");
+        }
+        return null;
+    }
+
+    private int attackFrom(ArrayList<Integer> listAttack) throws ImpossibleAttackException{
         System.out.println("From which territory will you attack ?");
 
         //If no territories can attack
         if (listAttack.size() == 0){
-            System.out.println("Sorry you can not attack in this conditions, maybe next time ^^'");
-            return listAttack;
+            throw new ImpossibleAttackException("Impossible attack.");
         }
 
-        int attacker = checkList(listAttack);
+        int attacker;
 
-        listAttack.clear(); //Clear to use it as the List of IDs of territories that can be attacked from a selected territory
-        for(Integer n : territories.get(attacker).getNeighbors()){//for all neighbors of the attacker territory
-            if(!territories.containsKey(n)){//Only select those who don't belong to the player
-                listAttack.add(n);
+        while(true){ //keep asking user if wrong selected territory
+            try{
+                attacker = checkList2(listAttack);
+                break;//stop the while if no exception
+            }
+            catch(OutOfListException | NegativeInputException e){
+                System.out.print("You can't attack from the territory you chose. Please select one in the list.\n");
             }
         }
-        System.out.println("Which territory do you want to attack ?");
-        //TODO : pouvoir retourner en arrière pour selectionner un autre territoire
-        int defender = checkList(listAttack);
 
-        listAttack.clear();//We reuse listAttack to return 2 variables
-        listAttack.add(attacker);
-        listAttack.add(defender);
-        return listAttack;
+        listAttack.clear(); //Clear to use it as the List of IDs of territories that can be attacked from a selected territory
+        return attacker;
+    }
+
+    public static class ImpossibleAttackException extends Throwable {
+        public ImpossibleAttackException(String errorMessage){
+            super(errorMessage);
+        }
+    }
+
+    public static class OutOfListException extends Throwable {
+        public OutOfListException(String errorMessage){
+            super(errorMessage);
+        }
+    }
+
+    public static class NegativeInputException extends Throwable {
+        public NegativeInputException(String errorMessage){
+            super(errorMessage);
+        }
     }
 
     public int endTurn(Game game){//We must have access to game to use the function checkinput
