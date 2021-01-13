@@ -1,27 +1,38 @@
 package com.projet;
-import com.projet.Game;
 
 import java.awt.event.*;
 import javax.swing.*;
 import java.awt.*;
 
-public class Game_interface_graphique {
+public class GUI {
+    JFrame frame;
+    JPanel panel;
 
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Java Project");
-        frame.setVisible(true);
-        frame.setSize(500, 200);
+    public GUI() {
+
+        frame = new JFrame("Java Project");
+
+        JButton buttonNewGame = new JButton("New game");
+        buttonNewGame.addActionListener(new newGame());
+        JButton buttonExitGame = new JButton("Exit");
+        buttonExitGame.addActionListener(new exitGame());
+        panel = new JPanel();
+        panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 30));
+        panel.setLayout(new GridLayout(1, 2));
+        panel.add(buttonNewGame);
+        panel.add(buttonExitGame);
+
+        frame.add(panel, BorderLayout.CENTER);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel panel = new JPanel();
-        frame.add(panel);
-        JButton newGame = new JButton("New Game");
-        panel.add(newGame);
-        newGame.addActionListener(new newGame());
+        frame.pack();
+        frame.setSize(500, 200);
+        frame.setVisible(true);
+    }
 
-        JButton exitGame = new JButton("Exit Game");
-        panel.add(exitGame);
-        exitGame.addActionListener(new exitGame());
+
+    public static void main(String[] args) {
+        new GUI();
     }
 
     static class newGame implements ActionListener {
@@ -32,9 +43,9 @@ public class Game_interface_graphique {
             frame2.setSize(500, 500);
 
             JLabel label = new JLabel("Choose the number of players please");
-            JPanel panel = new JPanel();
-            frame2.add(panel);
-            panel.add(label);
+            JPanel panelPlayers = new JPanel();
+            frame2.add(panelPlayers);
+            panelPlayers.add(label);
 
             JButton twoPlayersBtn;
             JButton threePlayersBtn;
@@ -60,11 +71,11 @@ public class Game_interface_graphique {
             fivePlayersBtn.setActionCommand(fivePlayersBtnName);
             sixPlayersBtn.setActionCommand(sixPlayersBtnName);
 
-            panel.add(twoPlayersBtn);
-            panel.add(threePlayersBtn);
-            panel.add(fourPlayersBtn);
-            panel.add(fivePlayersBtn);
-            panel.add(sixPlayersBtn);
+            panelPlayers.add(twoPlayersBtn);
+            panelPlayers.add(threePlayersBtn);
+            panelPlayers.add(fourPlayersBtn);
+            panelPlayers.add(fivePlayersBtn);
+            panelPlayers.add(sixPlayersBtn);
 
             label.setAlignmentX(Component.CENTER_ALIGNMENT);
             twoPlayersBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -72,14 +83,13 @@ public class Game_interface_graphique {
             fourPlayersBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
             fivePlayersBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
             sixPlayersBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panelPlayers.setLayout(new BoxLayout(panelPlayers, BoxLayout.Y_AXIS));
 
             class twoPlayersBtn implements ActionListener {
                 public void actionPerformed(ActionEvent e) {
-                    //set the number of players to 2
+                    final int nbPlayers = 2;
                     //get the names of the players
                     //init the game
-                    //dispatch the dices
                     //display map
                     //play
                     //end page
@@ -88,25 +98,25 @@ public class Game_interface_graphique {
 
             class threePlayersBtn implements ActionListener {
                 public void actionPerformed(ActionEvent e) {
-                    final int nbPlayer = 3;
+                    final int nbPlayers = 3;
                 }
             }
 
             class fourPlayersBtn implements ActionListener {
                 public void actionPerformed(ActionEvent e) {
-                    final int nbPlayer = 4;
+                    final int nbPlayers = 4;
                 }
             }
 
             class fivePlayersBtn implements ActionListener {
                 public void actionPerformed(ActionEvent e) {
-                    final int nbPlayer = 5;
+                    final int nbPlayers = 5;
                 }
             }
 
             class sixPlayersBtn implements ActionListener {
                 public void actionPerformed(ActionEvent e) {
-                    final int nbPlayer = 6;
+                    final int nbPlayers = 6;
                 }
             }
         }
@@ -119,4 +129,3 @@ public class Game_interface_graphique {
         }
     }
 }
-
