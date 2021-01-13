@@ -3,7 +3,6 @@ package com.projet;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -89,6 +88,21 @@ public class Maps {
             for(int j = 0; j < this.map[0].length; j++){
                 this.map[i][j].setNeighbors(defineNeighbors(i,j)); //add the neighbors
             }
+        }
+    }
+
+    public int findPlayerById(int id) throws NonexistentIdException {
+        for(int i = 0; i < this.map.length; i++){
+            for(int j = 0; j < this.map[i].length; j++){
+                return map[i][j].getPlayerID();
+            }
+        }
+        throw new NonexistentIdException("Id doesn't exist.");
+    }
+
+    public static class NonexistentIdException extends Throwable {
+        public NonexistentIdException(String errorMessage){
+            super(errorMessage);
         }
     }
 }

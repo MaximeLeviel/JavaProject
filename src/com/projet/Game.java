@@ -324,9 +324,9 @@ public class Game {
 
                     if(turn == 1){//If the player wants to attack
                         ArrayList<Integer> listAttack;
-                        listAttack = game.players.get(player).attackTerritories(); //select the territory that will attack and the defender
+                        listAttack = game.players.get(player).attackTerritories(myMap); //select the territory that will attack and the defender
 
-                        if(listAttack.size() != 0){//If the player can attack
+                        if(listAttack != null && listAttack.size() != 0){//If the player can attack
                             win = game.attack(game.players.get(player), listAttack, myMap.map); //launch the attack
                         }
                         //TODO : ne pas redemander au player s'il veut attaquer s'il ne peut pas

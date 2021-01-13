@@ -81,8 +81,7 @@ public class Player {
     }
 
     //Ask the user for the territory which will attack and the territory which will defend
-    //TODO : raise an exception if territory is a -1 (blocked territories)
-    public ArrayList<Integer> attackTerritories(){
+    public ArrayList<Integer> attackTerritories(Maps myMap){
         ArrayList<Integer> listAttack = new ArrayList<>();//List of IDs of territories that can attack
         for (Map.Entry<Integer, Territory> entry : territories.entrySet()){//For each territory of the player
             if(entry.getValue().getStrength() != 1){//Strength must not be 1 to attack
@@ -105,7 +104,13 @@ public class Player {
 
             for(Integer n : territories.get(attacker).getNeighbors()){//for all neighbors of the attacker territory
                 if(!territories.containsKey(n)){//Only select those who don't belong to the player
-                    listAttack.add(n);
+                    try{
+                        if(myMap.findPlayerById(n) != -1){
+                            listAttack.add(n);
+                        }
+                    } catch (Maps.NonexistentIdException e) {
+                        System.out.print("Oops. Something wrong happened.");
+                    }
                 }
             }
             System.out.println("Which territory do you want to attack ? (Enter 0 if you want to change the territory you attack from.");
@@ -121,7 +126,7 @@ public class Player {
                     System.out.print("You can't attack the territory you chose. Please select one in the list.\n");
                 }
                 catch (ZeroInputException e){
-                    return attackTerritories();
+                    return attackTerritories(myMap);
                 }
             }
 
