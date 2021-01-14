@@ -67,6 +67,7 @@ public class GUI extends Game{
             try {
                 id = myMap.findPlayerById(i + 1);
                 button.setText("" + myMap.findStrenghById(i + 1));
+                button.setEnabled(true);
             } catch (Maps.NonexistentIdException e) {
                 e.printStackTrace();
             }
@@ -82,6 +83,7 @@ public class GUI extends Game{
             JButton button = buttons.get(i);
             if(!listAttack.contains(i + 1)){
                 button.setBackground(colors[0]);
+                button.setEnabled(false);
             }
         }
         mapPanel.revalidate();
@@ -93,7 +95,7 @@ public class GUI extends Game{
         final Integer[] defender = {null};
 
         JFrame gameFrame = new JFrame("Map");
-        gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        gameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         JPanel masterPanel = new JPanel();
 
         //Declare before the map because we need to access it from within the actionListener of the map
@@ -160,16 +162,18 @@ public class GUI extends Game{
                             if (!win){
                                 instructionLabel.setText("Sorry, you lost.");
                                 playerPanel.revalidate();
-                                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap);
+                                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame);
                             }
                             else{
-                                instructionLabel.setText("Congratulations, you won ! Choose which territory you want to attack with or select 'Finish' to end your turn.");
+                                instructionLabel.setText("Congratulations, you won ! Choose which territory you want to " +
+                                        "attack with or select 'Finish' to end your turn.");
                                 playerPanel.revalidate();
                                 processing[0] = false;
                             }
                         }
                         else{
-                            instructionLabel.setText("You can't attack this territory, please choose an other one to attack or click on previous.");
+                            instructionLabel.setText("You can't attack this territory, please choose an other one to " +
+                                    "attack or click on previous.");
                             playerPanel.revalidate();
                         }
                         addData(buttons, mapPanel, myMap);
@@ -195,7 +199,7 @@ public class GUI extends Game{
         finishButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap);
+                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame);
             }
         });
 
@@ -216,14 +220,55 @@ public class GUI extends Game{
     }
 
     private void endTurn(int[] player, JPanel playerPanel, JLabel playerLabel, JLabel colorLabel, boolean[] processing,
-                         ArrayList<JButton>  buttons, JPanel mapPanel, Maps myMap){
-        bonusDices(players.get(player[0]));
-        player[0] = (player[0] + 1) % nbPlayer;
-        playerLabel.setText("Joueur " + (player[0] + 1) + ", à ton tour");
-        colorLabel.setForeground(colors[player[0] + 1]);
-        playerPanel.revalidate();
-        processing[0] = false;
-        addData(buttons, mapPanel, myMap);
+                         ArrayList<JButton>  buttons, JPanel mapPanel, Maps myMap, JFrame gameFrame){
+        ArrayList<Integer> winners = winners();
+        if(winners.size() == 1){
+            gameFrame.dispose();
+            endOfGame(winners.get(0));
+        }
+        else{
+            bonusDices(players.get(player[0]));
+            do{
+                player[0] = (player[0] + 1) % nbPlayer;
+            }while(!winners.contains(player[0]));
+            playerLabel.setText("Joueur " + (player[0] + 1) + ", à ton tour");
+            colorLabel.setForeground(colors[player[0] + 1]);
+            playerPanel.revalidate();
+            processing[0] = false;
+            addData(buttons, mapPanel, myMap);
+
+        }
+    }
+
+    private void endOfGame(int winner){
+        JFrame finalFrame = new JFrame("Winner : " + players.get(winner).getName());
+        finalFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        finalFrame.setSize(500, 500);
+        JPanel finalPanel = new JPanel();
+        JLabel congratulationLabel = new JLabel("Congratulation " + players.get(winner).getName() + ", you won the " +
+                "game and destroyed your friends :)");
+        finalPanel.add(congratulationLabel);
+
+        JButton newGameButton = new JButton("Play again !");
+        newGameButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                finalFrame.dispose();
+            }
+        });
+        finalPanel.add(newGameButton);
+        finalFrame.getContentPane().add(finalPanel);
+        finalFrame.setVisible(true);
+    }
+
+    private ArrayList<Integer> winners(){
+        ArrayList<Integer> winners = new ArrayList<>();
+        for (Player player : players) {
+            if (player.getTerritories().size() != 0) {
+                winners.add(player.getID());
+            }
+        }
+        return winners;
     }
 
     private void previous(boolean[] processing, JButton previousButton, JLabel instructionLabel, JPanel playerPanel,

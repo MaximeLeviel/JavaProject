@@ -193,7 +193,6 @@ public class Player {
         return turn;
     }
 
-
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("-------------------- Player number ");
