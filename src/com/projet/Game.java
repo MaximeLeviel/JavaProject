@@ -246,7 +246,7 @@ public class Game {
     }
 
     //Compute the number of bonus dices to add
-    public void bonusDices(Player player){
+    public int bonusDices(Player player){
         HashMap< Integer, ArrayList<Territory> > contiguous = new HashMap<>();//Map with key = ID of each territory in territories and Value = direct contiguous territories
         for (Map.Entry<Integer, Territory> entry : player.getTerritories().entrySet()) { //for each territory of player
             contiguous.put(entry.getKey(), new ArrayList<>()); //We create an array which represents their direct contiguous territories that belong to the player
@@ -279,6 +279,7 @@ public class Game {
         }
         System.out.println("==============================\nYou get a bonus of " + maxContiguous + " dices\n==============================");
         distributeDices(player, maxContiguous);//call the function to distribute the dices randomly
+        return maxContiguous;
     }
 
     //MAIN

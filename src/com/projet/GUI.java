@@ -161,7 +161,7 @@ public class GUI extends Game{
                             };
                             win = attack(players.get(player[0]), attackList, myMap.map);
                             if (!win){
-                                lostMessage(players.get(player[0]).getName());
+                                popUpMessage("You lost.", "Sorry " + players.get(player[0]).getName() + ", you lost the dice roll.");
                                 instructionLabel.setText("<html>Choose which territory you want to attack with or " +
                                         "select 'Finish' to end your turn.</html>");
                                 playerPanel.revalidate();
@@ -207,7 +207,8 @@ public class GUI extends Game{
         finishButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                bonusDices(players.get(player[0]));
+                int bonus = bonusDices(players.get(player[0]));
+                popUpMessage("You win.", "Congratulations, you have won " + bonus + " bonus dices.");
                 endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame, winners[0]);
             }
         });
@@ -241,12 +242,12 @@ public class GUI extends Game{
         addData(buttons, mapPanel, myMap);
     }
 
-    private void lostMessage(String name){
-        JFrame lostFrame = new JFrame("You lost.");
-        lostFrame.setSize(250, 100);
+    private void popUpMessage(String title, String message){
+        JFrame lostFrame = new JFrame(title);
+        lostFrame.setSize(300, 150);
         lostFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         JPanel lostPanel = new JPanel();
-        JLabel lostLabel = new JLabel("Sorry " + name + ", you lost the dice roll.");
+        JLabel lostLabel = new JLabel("<html>" + message + "</html>");
         JButton okButton = new JButton("OK");
         okButton.addActionListener(new ActionListener() {
             @Override
