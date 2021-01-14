@@ -360,7 +360,6 @@ public class Game {
                         if(listAttack != null && listAttack.size() != 0){//If the player can attack
                             win = game.attack(game.players.get(player), listAttack, myMap.map); //launch the attack
                         }
-
                         else{
                             game.bonusDices(game.players.get(player)); //If player decides to stop, they get bonus dices
                             turn = 0;

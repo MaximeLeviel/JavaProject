@@ -98,11 +98,8 @@ public class Player {
         try{
             attacker = attackFrom(listAttack);
 
-            for(Integer n : territories.get(attacker).getNeighbors()){//for all neighbors of the attacker territory
-                if(!territories.containsKey(n)){//Only select those who don't belong to the player
-                    listAttack.add(n);
-                }
-            }
+            listAttack = getDefenders(attacker);
+
             System.out.println("Which territory do you want to attack ? (Enter 0 if you want to change the territory you attack from)");
 
             int defender;
@@ -154,6 +151,21 @@ public class Player {
 
         listAttack.clear(); //Clear to use it as the List of IDs of territories that can be attacked from a selected territory
         return attacker;
+    }
+
+    private ArrayList<Integer> getDefenders(int attacker){
+        ArrayList<Integer> listAttack = new ArrayList<>();
+        for(Integer n : territories.get(attacker).getNeighbors()){//for all neighbors of the attacker territory
+            if(!territories.containsKey(n)){//Only select those who don't belong to the player
+                listAttack.add(n);
+            }
+        }
+        return listAttack;
+    }
+
+    public boolean isAttackable(int id, int attacker){
+        ArrayList<Integer> listAttack = getDefenders(attacker);
+        return listAttack.contains(id);
     }
 
     public static class ImpossibleAttackException extends Throwable {
