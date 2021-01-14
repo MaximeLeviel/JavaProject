@@ -7,8 +7,11 @@ import java.util.ArrayList;
 
 public class GUI extends Game{
 
+    private final Color[] colors;
+
     public GUI(int _nbPlayer, int _nbTerritories) {
         super(_nbPlayer, _nbTerritories);
+        colors = new Color[] {Color.GRAY, Color.RED, Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.BLUE, Color.PINK};
     }
 
     @Override
@@ -58,7 +61,6 @@ public class GUI extends Game{
     }
 
     private void addData(ArrayList<JButton> buttons, JPanel mapPanel ,Maps myMap){
-        Color[] colors = new Color[] {Color.GRAY, Color.RED, Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.BLUE, Color.PINK};
 
         for(int i = 0; i < buttons.size(); i++){
             JButton button = buttons.get(i);
@@ -94,8 +96,11 @@ public class GUI extends Game{
         JPanel playerPanel = new JPanel();
         playerPanel.setLayout(new BoxLayout(playerPanel, BoxLayout.Y_AXIS));
         JLabel playerLabel = new JLabel("Player " + (player[0] + 1) + ", it's your turn");
+        JLabel colorLabel = new JLabel("Your color");
+        colorLabel.setForeground(colors[player[0] + 1]);
         JLabel instructionLabel = new JLabel("Choose which territory you want to attack with or select 'Finish' to end your turn.");
         playerPanel.add(playerLabel);
+        playerPanel.add(colorLabel);
         playerPanel.add(instructionLabel);
 
         //Declare the map
@@ -139,7 +144,7 @@ public class GUI extends Game{
                             if (!win){
                                 instructionLabel.setText("Sorry, you lost.");
                                 playerPanel.revalidate();
-                                endTurn(player, playerPanel, playerLabel, processing);
+                                endTurn(player, playerPanel, playerLabel, colorLabel, processing);
                             }
                             else{
                                 instructionLabel.setText("Congratulations, you won ! Choose which territory you want to attack with or select 'Finish' to end your turn.");
@@ -167,7 +172,7 @@ public class GUI extends Game{
             public void actionPerformed(ActionEvent e) {
                 processing[0] = false;
                 previousButton.setVisible(false);
-                JLabel instructionLabel = new JLabel("Choose which territory you want to attack with or select 'Finish' to end your turn.");
+                instructionLabel.setText("Choose which territory you want to attack with or select 'Finish' to end your turn.");
                 playerPanel.revalidate();
             }
         });
@@ -177,7 +182,7 @@ public class GUI extends Game{
         finishButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                endTurn(player, playerPanel, playerLabel, processing);
+                endTurn(player, playerPanel, playerLabel, colorLabel, processing);
             }
         });
 
@@ -197,10 +202,11 @@ public class GUI extends Game{
         System.out.println("test");
     }
 
-    private void endTurn(int[] player, JPanel playerPanel, JLabel playerLabel, boolean[] processing){
+    private void endTurn(int[] player, JPanel playerPanel, JLabel playerLabel, JLabel colorLabel ,boolean[] processing){
         bonusDices(players.get(player[0]));
         player[0] = (player[0] + 1) % nbPlayer;
         playerLabel.setText("Joueur " + (player[0] + 1) + ", à ton tour");
+        colorLabel.setForeground(colors[player[0] + 1]);
         playerPanel.revalidate();
         processing[0] = false;
     }
