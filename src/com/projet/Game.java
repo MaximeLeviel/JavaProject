@@ -36,33 +36,64 @@ public class Game {
         }
     }
 
+    //find the territory in map and sets the playerID
+    public Territory findTerritoryByID(Territory[][] map, int ID) throws Maps.NonexistentIdException {
+        for(Territory[] t : map){
+            for(Territory territory : t){
+                if(ID == territory.getID()){ //when we found the territory selected in map
+                    return territory;
+                }
+            }
+        }
+        throw new Maps.NonexistentIdException("Id doesn't exist.");
+    }
+
     //Methods for map
-    //TODO : randomisé les territoires bloqués
-    public void initMap(Territory[][] map){ //Give the strength and players to each territory
+    public void initMap(Territory[][] map) { //Give the strength and players to each territory
         int excess = nbTerritories % nbPlayer;
         int totalDices = (nbTerritories/nbPlayer)*5; //Number of dices per player = average of 5 dices per territory
-        int player, strength;
+        int strength, territoryId;
+        Territory territory;
+        ArrayList<Integer> takenTerritories = new ArrayList<>();
 
-        //Dispatch the different territories equally
-        int cpt = 1;
-        for (Territory[] territories : map) {
-            for (int j = 0; j < map[0].length; j++) {
-                if (cpt <= nbTerritories - excess){
-                    do {
-                        player = (int) (Math.random() * (nbPlayer)); //associate a random player (from 0 to nbPlayer-1)
-                    }
-                    while (players.get(player).getTerritories().size() >= (nbTerritories / nbPlayer)); //if player has already its maximum number of territories (nbTerritories/nbPlayers) pull another player
-                    players.get(player).addToTerritories(territories[j]);//associate the territory to the player
+        for (Player player : players){
+            for (int i = 0; i < nbTerritories/nbPlayer; i++) {
+                do{
+                    territoryId = (int) (Math.random() * nbTerritories + 1); //associate a random territory (from 1 to nbTerritories)
                 }
-                else{
-                    player = -1;
+                while(takenTerritories.contains(territoryId)); //Draw until the territory is not already taken
+                takenTerritories.add(territoryId);  //The territory is added to the list of taken territories
+
+                try {
+                    territory = findTerritoryByID(map, territoryId); //returns the territory associated to the territoryID
+                    territory.setPlayerID(player.getID());
+                    player.addToTerritories(territory); //associate the territory to the player
+                } catch (Maps.NonexistentIdException e) {
+                    System.out.println("The territory has not been found");
                 }
-                territories[j].setPlayerID(player);//associate the player's ID to the territory
-                cpt++;
             }
         }
 
+        if(excess !=0){
+            int cpt = 0;
+            do{
+                for(int i = 1; i <= nbTerritories; i++){
+                    if (!takenTerritories.contains(i)){
+                        takenTerritories.add(i);//We add the territory has a taken territory
+                        try {
+                            territory = findTerritoryByID(map, i); //returns the territory associated to the territoryID
+                            territory.setPlayerID(-1); //We block the territory
+                            cpt++;
+                        } catch (Maps.NonexistentIdException e) {
+                            System.out.println("The territory has not been found"); //Should never happen
+                        }
+                    }
+                }
+                System.out.println("TEST");
+            }while(cpt != excess);
+        }
 
+        int cpt;
         //Dispatch the dices to the territories for each players
         for (Player p : players) {
             cpt = 1;
