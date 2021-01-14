@@ -96,6 +96,32 @@ public class Maps {
         }
     }
 
+    public int checkWinLose(int id){
+        boolean win = true;
+        boolean lose = true;
+        for (Territory[] territories : map) {
+            for (Territory territory : territories) {
+                int tmpId = territory.getPlayerID();
+                if (tmpId != -1) {
+                    if (tmpId == id) {
+                        lose = false;
+                    } else {
+                        win = false;
+                    }
+                }
+            }
+        }
+        if(lose == win){
+            return 0;
+        }
+        else if(lose) {
+            return -1;
+        }
+        else{
+            return 1;
+        }
+    }
+
     public int findPlayerById(int id) throws NonexistentIdException {
         for (Territory[] territories : this.map) {
             for (Territory territory : territories) {
