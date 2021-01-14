@@ -11,7 +11,7 @@ public class Maps {
     public Territory[][] map;
 
     //Constructor
-    Maps(String path){//Load a map from a CSV file
+    Maps(String path) throws FileNotFoundException {//Load a map from a CSV file
         ArrayList<ArrayList<Territory>> tmpMap = new ArrayList<>();
         try {
             File CSV = new File(path);
@@ -41,8 +41,6 @@ public class Maps {
                 }
                 i++;
             }
-        } catch (FileNotFoundException e) {
-            System.out.print("The file with the specified name doesn't exist, please specify a new one. \n");
         } catch (NoSuchElementException e){
             this.map = new Territory[tmpMap.size()][tmpMap.get(0).size()];
             for (int i = 0; i < this.map.length; i++){//convert the temporary ArrayList into final Array

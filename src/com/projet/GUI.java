@@ -3,6 +3,7 @@ package com.projet;
 import java.awt.event.*;
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public class GUI extends Game{
@@ -97,6 +98,8 @@ public class GUI extends Game{
 
         JFrame gameFrame = new JFrame("Map");
         gameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        gameFrame.setLocationRelativeTo(null);
+
         JPanel masterPanel = new JPanel();
 
         //Declare before the map because we need to access it from within the actionListener of the map
@@ -243,28 +246,32 @@ public class GUI extends Game{
     }
 
     private void popUpMessage(String title, String message){
-        JFrame lostFrame = new JFrame(title);
-        lostFrame.setSize(300, 150);
-        lostFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        JFrame popUpFrame = new JFrame(title);
+        popUpFrame.setSize(300, 150);
+        popUpFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        popUpFrame.setLocationRelativeTo(null);
+        
+        
         JPanel lostPanel = new JPanel();
         JLabel lostLabel = new JLabel("<html>" + message + "</html>");
         JButton okButton = new JButton("OK");
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                lostFrame.dispose();
+                popUpFrame.dispose();
             }
         });
         lostPanel.add(lostLabel);
         lostPanel.add(okButton);
-        lostFrame.getContentPane().add(lostPanel);
-        lostFrame.setVisible(true);
+        popUpFrame.getContentPane().add(lostPanel);
+        popUpFrame.setVisible(true);
     }
 
     private void endOfGame(int winner){
         JFrame finalFrame = new JFrame("Winner : " + players.get(winner).getName());
         finalFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         finalFrame.setSize(500, 500);
+        finalFrame.setLocationRelativeTo(null);
         JPanel finalPanel = new JPanel();
         JLabel congratulationLabel = new JLabel("Congratulation " + players.get(winner).getName() + ", you won the " +
                 "game and destroyed your friends :)");
@@ -302,9 +309,12 @@ public class GUI extends Game{
     }
 
     public static void main(String[] args) {
+        final boolean[] checked = {false};
+
         JFrame launchFrame = new JFrame("Settings");
         launchFrame.setSize(500, 500);
         launchFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        launchFrame.setLocationRelativeTo(null);
 
         JPanel launchPanel = new JPanel();
         launchPanel.setLayout(new BoxLayout(launchPanel, BoxLayout.Y_AXIS));
@@ -318,8 +328,24 @@ public class GUI extends Game{
         playerNbPanel.add(playerNbLabel);
         playerNbPanel.add(jComboBoxPlayerNb);
 
-        //JPanel CSVPanel = new JPanel();
-        //CSVPanel.setLayout(new BoxLayout(launchPanel, BoxLayout.X_AXIS));
+        JPanel CSVCheckBoxPanel = new JPanel();
+        CSVCheckBoxPanel.setLayout(new BoxLayout(CSVCheckBoxPanel, BoxLayout.X_AXIS));
+        JLabel CSVCheckBoxLabel = new JLabel("Load map from CSV file.");
+        JCheckBox CSVCheckBox = new JCheckBox();
+        CSVCheckBoxPanel.add(CSVCheckBoxLabel);
+        CSVCheckBoxPanel.add(CSVCheckBox);
+
+        JPanel CSVPanel = new JPanel();
+        CSVPanel.setLayout(new BoxLayout(CSVPanel, BoxLayout.X_AXIS));
+        JLabel CSVLabel = new JLabel("Enter the name of the file : ");
+        JTextField CSVTextField = new JTextField();
+        CSVTextField.setMaximumSize(new Dimension(150, 25));
+        CSVPanel.add(CSVLabel);
+        CSVPanel.add(CSVTextField);
+        CSVPanel.setVisible(false);
+
+        JLabel ErrorCSVLabel = new JLabel("The file specified doesn't exist. Please enter a new one");
+        ErrorCSVLabel.setVisible(false);
 
         JPanel linesPanel = new JPanel();
         linesPanel.setLayout(new BoxLayout(linesPanel, BoxLayout.X_AXIS));
@@ -339,34 +365,58 @@ public class GUI extends Game{
         columnsPanel.add(columnsLabel);
         columnsPanel.add(jComboBoxColumns);
 
+        CSVCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                checked[0] = !checked[0];
+                CSVPanel.setVisible(checked[0]);
+                linesPanel.setVisible(!checked[0]);
+                columnsPanel.setVisible(!checked[0]);
+            }
+        });
+
         JButton validateButton = new JButton("Validate");
         validateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int lines = (int)jComboBoxLines.getSelectedItem();
-                int columns = (int) jComboBoxColumns.getSelectedItem();
-                int nbTerritories = lines * columns;
-                int nbPlayer = (int)jComboBoxPlayerNb.getSelectedItem();
+                try{
+                    int nbTerritories;
+                    Maps myMap;
+                    int nbPlayer = (int)jComboBoxPlayerNb.getSelectedItem();
+                    if(checked[0]){
+                        String name = CSVTextField.getText();
+                        myMap = new Maps(name + ".csv");
+                        nbTerritories = myMap.map.length * myMap.map[0].length;
+                    }
+                    else{
+                        int lines = (int)jComboBoxLines.getSelectedItem();
+                        int columns = (int) jComboBoxColumns.getSelectedItem();
+                        nbTerritories = lines * columns;
 
-                //Creation of the map
-                Maps myMap = new Maps(lines, columns);
-                myMap.createMap();
+                        //Creation of the map
+                        myMap = new Maps(lines, columns);
+                        myMap.createMap();
+                    }
 
-                //Creation of the game
-                GUI gui = new GUI(nbPlayer, nbTerritories);
+                    //Creation of the game
+                    GUI gui = new GUI(nbPlayer, nbTerritories);
 
-                //Creation of the players
-                gui.createPlayers();
-                gui.initMap(myMap.map); //Fill the territories with a strength and a player's ID
-                myMap.initNeighbors(); //Fill the neighbors for each territory
+                    //Creation of the players
+                    gui.createPlayers();
+                    gui.initMap(myMap.map); //Fill the territories with a strength and a player's ID
+                    myMap.initNeighbors(); //Fill the neighbors for each territory
 
-                gui.play(myMap);
-
-                System.out.print("Test");
+                    gui.play(myMap);
+                } catch (FileNotFoundException fileNotFoundException) {
+                    ErrorCSVLabel.setVisible(true);
+                }
             }
         });
 
         launchPanel.add(playerNbPanel);
+        launchPanel.add(CSVCheckBoxPanel);
+        launchPanel.add(CSVPanel);
+        launchPanel.add(ErrorCSVLabel);
         launchPanel.add(linesPanel);
         launchPanel.add(columnsPanel);
         launchPanel.add(validateButton);

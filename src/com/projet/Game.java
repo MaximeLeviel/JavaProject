@@ -1,5 +1,6 @@
 package com.projet;
 
+import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Game {
@@ -305,7 +306,14 @@ public class Game {
             if (response == 0){
                 System.out.print("\nEnter the name of the CSV file.\n");
                 String name = sc.nextLine();
-                myMap = new Maps(name + ".csv");
+                while(true){
+                    try {
+                        myMap = new Maps(name + ".csv");
+                        break;
+                    } catch (FileNotFoundException e) {
+                        System.out.print("The file with the specified name doesn't exist, please specify a new one. \n");
+                    }
+                }
                 nbTerritories = myMap.map.length * myMap.map[0].length;
             }
             else{
