@@ -110,7 +110,7 @@ public class GUI extends Game{
         JLabel playerLabel = new JLabel("Player " + (player[0] + 1) + ", it's your turn");
         JLabel colorLabel = new JLabel("Your color");
         colorLabel.setForeground(colors[player[0] + 1]);
-        JLabel instructionLabel = new JLabel("Choose which territory you want to attack with or select 'Finish' to end your turn.");
+        JLabel instructionLabel = new JLabel("<html>Choose which territory you want to attack with or select 'Finish' to end your turn.");
         playerPanel.add(playerLabel);
         playerPanel.add(colorLabel);
         playerPanel.add(instructionLabel);
@@ -133,18 +133,18 @@ public class GUI extends Game{
                     if(!processing[0]){
                         if(players.get(player[0]).getTerritory(id) != null && !strength.equals("1")){
                             attacker[0] = id;
-                            instructionLabel.setText("Now, choose which neighbor you want to attack.");
+                            instructionLabel.setText("<html>Now, choose which neighbor you want to attack.</html>");
                             playerPanel.revalidate();
                             processing[0] = true;
                             removeColor(buttons, mapPanel, attacker[0], player[0]);
                             previousButton.setVisible(true);
                         }
                         else if(strength.equals("1")){
-                            instructionLabel.setText("You can't attack with a territory with one dice.");
+                            instructionLabel.setText("<html>You can't attack with a territory with one dice.</html>");
                             playerPanel.revalidate();
                         }
                         else{
-                            instructionLabel.setText("You chose a territory that is not yours. Please choose an other one.");
+                            instructionLabel.setText("<html>You chose a territory that is not yours. Please choose an other one.</html>");
                             playerPanel.revalidate();
                         }
 
@@ -160,20 +160,20 @@ public class GUI extends Game{
                             };
                             win = attack(players.get(player[0]), attackList, myMap.map);
                             if (!win){
-                                instructionLabel.setText("Sorry, you lost.");
+                                instructionLabel.setText("<html>Sorry, you lost.</html>");
                                 playerPanel.revalidate();
                                 endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame);
                             }
                             else{
-                                instructionLabel.setText("Congratulations, you won ! Choose which territory you want to " +
-                                        "attack with or select 'Finish' to end your turn.");
+                                instructionLabel.setText("<html>Congratulations, you won ! Choose which territory you want to " +
+                                        "attack with or select 'Finish' to end your turn.</html>");
                                 playerPanel.revalidate();
                                 processing[0] = false;
                             }
                         }
                         else{
-                            instructionLabel.setText("You can't attack this territory, please choose an other one to " +
-                                    "attack or click on previous.");
+                            instructionLabel.setText("<html>You can't attack this territory, please choose an other one to " +
+                                    "attack or click on previous.</html>");
                             playerPanel.revalidate();
                         }
                         addData(buttons, mapPanel, myMap);
@@ -199,6 +199,7 @@ public class GUI extends Game{
         finishButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                bonusDices(players.get(player[0]));
                 endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame);
             }
         });
@@ -227,7 +228,6 @@ public class GUI extends Game{
             endOfGame(winners.get(0));
         }
         else{
-            bonusDices(players.get(player[0]));
             do{
                 player[0] = (player[0] + 1) % nbPlayer;
             }while(!winners.contains(player[0]));
@@ -275,7 +275,7 @@ public class GUI extends Game{
                           ArrayList<JButton> buttons, JPanel mapPanel, Maps myMap){
         processing[0] = false;
         previousButton.setVisible(false);
-        instructionLabel.setText("Choose which territory you want to attack with or select 'Finish' to end your turn.");
+        instructionLabel.setText("<html>Choose which territory you want to attack with or select 'Finish' to end your turn.</html>");
         playerPanel.revalidate();
         addData(buttons, mapPanel, myMap);
     }
@@ -283,6 +283,7 @@ public class GUI extends Game{
     public static void main(String[] args) {
         JFrame launchFrame = new JFrame("Settings");
         launchFrame.setSize(500, 500);
+        launchFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel launchPanel = new JPanel();
         launchPanel.setLayout(new BoxLayout(launchPanel, BoxLayout.Y_AXIS));
