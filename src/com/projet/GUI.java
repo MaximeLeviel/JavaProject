@@ -199,6 +199,7 @@ public class GUI extends Game{
         finishButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                bonusDices(players.get(player[0]));
                 endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame);
             }
         });
@@ -227,7 +228,6 @@ public class GUI extends Game{
             endOfGame(winners.get(0));
         }
         else{
-            bonusDices(players.get(player[0]));
             do{
                 player[0] = (player[0] + 1) % nbPlayer;
             }while(!winners.contains(player[0]));
