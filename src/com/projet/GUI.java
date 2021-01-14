@@ -123,18 +123,23 @@ public class GUI extends Game{
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JButton source = (JButton) e.getSource();
+                    String strength = e.getActionCommand();
                     int id = buttons.indexOf(source) + 1;
                     System.out.println(id);
                     boolean win = true;
 
                     if(!processing[0]){
-                        if(players.get(player[0]).getTerritory(id) != null){
+                        if(players.get(player[0]).getTerritory(id) != null && !strength.equals("1")){
                             attacker[0] = id;
                             instructionLabel.setText("Now, choose which neighbor you want to attack.");
                             playerPanel.revalidate();
                             processing[0] = true;
                             removeColor(buttons, mapPanel, attacker[0], player[0]);
                             previousButton.setVisible(true);
+                        }
+                        else if(strength.equals("1")){
+                            instructionLabel.setText("You can't attack with a territory with one dice.");
+                            playerPanel.revalidate();
                         }
                         else{
                             instructionLabel.setText("You chose a territory that is not yours. Please choose an other one.");
@@ -181,11 +186,7 @@ public class GUI extends Game{
         previousButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                processing[0] = false;
-                previousButton.setVisible(false);
-                instructionLabel.setText("Choose which territory you want to attack with or select 'Finish' to end your turn.");
-                playerPanel.revalidate();
-                addData(buttons, mapPanel, myMap);
+                previous(processing, previousButton, instructionLabel, playerPanel, buttons, mapPanel, myMap);
             }
         });
         previousButton.setVisible(false);
@@ -222,6 +223,15 @@ public class GUI extends Game{
         colorLabel.setForeground(colors[player[0] + 1]);
         playerPanel.revalidate();
         processing[0] = false;
+        addData(buttons, mapPanel, myMap);
+    }
+
+    private void previous(boolean[] processing, JButton previousButton, JLabel instructionLabel, JPanel playerPanel,
+                          ArrayList<JButton> buttons, JPanel mapPanel, Maps myMap){
+        processing[0] = false;
+        previousButton.setVisible(false);
+        instructionLabel.setText("Choose which territory you want to attack with or select 'Finish' to end your turn.");
+        playerPanel.revalidate();
         addData(buttons, mapPanel, myMap);
     }
 
