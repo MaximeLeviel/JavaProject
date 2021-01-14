@@ -26,7 +26,7 @@ public class GUI extends Game{
         gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JPanel mapPanel = new JPanel();
         mapPanel.setLayout(new GridLayout(myMap.map[0].length, myMap.map.length));
-        //ArrayList<JButton> buttons = new ArrayList<>();
+        ArrayList<JButton> buttons = new ArrayList<>();
         Color[] colors = new Color[] {Color.GRAY, Color.RED, Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.BLUE, Color.PINK};
         for(int i = 0; i < nbTerritories; i++){
             JButton button = new JButton();
@@ -40,10 +40,12 @@ public class GUI extends Game{
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-
+                    JButton source = (JButton) e.getSource();
+                    int id = buttons.indexOf(source);
+                    System.out.println(id);
                 }
             });
-            //buttons.add(button);
+            buttons.add(button);
             mapPanel.add(button);
         }
 
