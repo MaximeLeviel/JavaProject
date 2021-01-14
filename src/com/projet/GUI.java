@@ -60,8 +60,7 @@ public class GUI extends Game{
         return win;
     }
 
-    private void addData(ArrayList<JButton> buttons, JPanel mapPanel ,Maps myMap){
-
+    private void addData(ArrayList<JButton> buttons, JPanel mapPanel, Maps myMap){
         for(int i = 0; i < buttons.size(); i++){
             JButton button = buttons.get(i);
             int id = 0;
@@ -74,6 +73,17 @@ public class GUI extends Game{
             button.setBackground(colors[id + 1]);
         }
 
+        mapPanel.revalidate();
+    }
+
+    private void removeColor(ArrayList<JButton> buttons, JPanel mapPanel, int attacker, int player){
+        ArrayList<Integer> listAttack = players.get(player).getDefenders(attacker);
+        for (int i = 0; i < buttons.size(); i++){
+            JButton button = buttons.get(i);
+            if(!listAttack.contains(i + 1)){
+                button.setBackground(colors[0]);
+            }
+        }
         mapPanel.revalidate();
     }
 
@@ -123,6 +133,7 @@ public class GUI extends Game{
                             instructionLabel.setText("Now, choose which neighbor you want to attack.");
                             playerPanel.revalidate();
                             processing[0] = true;
+                            removeColor(buttons, mapPanel, attacker[0], player[0]);
                             previousButton.setVisible(true);
                         }
                         else{
@@ -174,6 +185,7 @@ public class GUI extends Game{
                 previousButton.setVisible(false);
                 instructionLabel.setText("Choose which territory you want to attack with or select 'Finish' to end your turn.");
                 playerPanel.revalidate();
+                addData(buttons, mapPanel, myMap);
             }
         });
         previousButton.setVisible(false);
