@@ -153,7 +153,7 @@ public class Player {
         return attacker;
     }
 
-    private ArrayList<Integer> getDefenders(int attacker){
+    public ArrayList<Integer> getDefenders(int attacker){
         ArrayList<Integer> listAttack = new ArrayList<>();
         for(Integer n : territories.get(attacker).getNeighbors()){//for all neighbors of the attacker territory
             if(!territories.containsKey(n)){//Only select those who don't belong to the player
