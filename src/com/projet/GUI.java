@@ -155,7 +155,7 @@ public class GUI extends Game{
                             if (!win){
                                 instructionLabel.setText("Sorry, you lost.");
                                 playerPanel.revalidate();
-                                endTurn(player, playerPanel, playerLabel, colorLabel, processing);
+                                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap);
                             }
                             else{
                                 instructionLabel.setText("Congratulations, you won ! Choose which territory you want to attack with or select 'Finish' to end your turn.");
@@ -194,7 +194,7 @@ public class GUI extends Game{
         finishButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                endTurn(player, playerPanel, playerLabel, colorLabel, processing);
+                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap);
             }
         });
 
@@ -214,13 +214,15 @@ public class GUI extends Game{
         System.out.println("test");
     }
 
-    private void endTurn(int[] player, JPanel playerPanel, JLabel playerLabel, JLabel colorLabel ,boolean[] processing){
+    private void endTurn(int[] player, JPanel playerPanel, JLabel playerLabel, JLabel colorLabel, boolean[] processing,
+                         ArrayList<JButton>  buttons, JPanel mapPanel, Maps myMap){
         bonusDices(players.get(player[0]));
         player[0] = (player[0] + 1) % nbPlayer;
         playerLabel.setText("Joueur " + (player[0] + 1) + ", à ton tour");
         colorLabel.setForeground(colors[player[0] + 1]);
         playerPanel.revalidate();
         processing[0] = false;
+        addData(buttons, mapPanel, myMap);
     }
 
     public static void main(String[] args) {
