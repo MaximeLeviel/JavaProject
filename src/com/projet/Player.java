@@ -66,8 +66,8 @@ public class Player {
         return input;
     }
 
-    //Ask the user for the territory which will attack and the territory which will defend
-    public ArrayList<Integer> attackTerritories(Maps myMap){
+
+    private ArrayList<Integer> getAttackant(){
         ArrayList<Integer> listAttack = new ArrayList<>();//List of IDs of territories that can attack
         for (Map.Entry<Integer, Territory> entry : territories.entrySet()){//For each territory of the player
             if(entry.getValue().getStrength() != 1){//Strength must not be 1 to attack
@@ -82,6 +82,12 @@ public class Player {
                 }
             }
         }
+        return listAttack;
+    }
+
+    //Ask the user for the territory which will attack and the territory which will defend
+    public ArrayList<Integer> attackTerritories(Maps myMap){
+        ArrayList<Integer> listAttack = getAttackant();
 
         int attacker;
 

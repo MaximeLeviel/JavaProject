@@ -106,6 +106,16 @@ public class Maps {
         throw new NonexistentIdException("Id doesn't exist.");
     }
 
+    public int findStrenghById(int id) throws NonexistentIdException {
+        for (Territory[] territories : this.map) {
+            for (Territory territory : territories) {
+                if(id == territory.getID())
+                    return territory.getStrength();
+            }
+        }
+        throw new NonexistentIdException("Id doesn't exist.");
+    }
+
     public static class NonexistentIdException extends Throwable {
         public NonexistentIdException(String errorMessage){
             super(errorMessage);

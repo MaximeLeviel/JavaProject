@@ -21,6 +21,39 @@ public class GUI extends Game{
         }
     }
 
+    private void play(Maps myMap){
+        JFrame gameFrame = new JFrame("Map");
+        gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JPanel mapPanel = new JPanel();
+        mapPanel.setLayout(new GridLayout(myMap.map[0].length, myMap.map.length));
+        //ArrayList<JButton> buttons = new ArrayList<>();
+        Color[] colors = new Color[] {Color.GRAY, Color.RED, Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.BLUE, Color.PINK};
+        for(int i = 0; i < nbTerritories; i++){
+            JButton button = new JButton();
+            try {
+                button.setText("" + myMap.findStrenghById(i + 1));
+                int id = myMap.findPlayerById(i + 1);
+                button.setBackground(colors[id + 1]);
+            } catch (Maps.NonexistentIdException e) {
+                e.printStackTrace();
+            }
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                }
+            });
+            //buttons.add(button);
+            mapPanel.add(button);
+        }
+
+        gameFrame.setSize(500, 500);
+        gameFrame.getContentPane().add(mapPanel);
+        gameFrame.setVisible(true);
+
+        System.out.println("test");
+    }
+
     public static void main(String[] args) {
         JFrame launchFrame = new JFrame("Settings");
         launchFrame.setSize(500, 500);
@@ -58,7 +91,7 @@ public class GUI extends Game{
         columnsPanel.add(columnsLabel);
         columnsPanel.add(jComboBoxColumns);
 
-        Button validateButton = new Button("Validate");
+        JButton validateButton = new JButton("Validate");
         validateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -78,6 +111,8 @@ public class GUI extends Game{
                 gui.createPlayers();
                 gui.initMap(myMap.map); //Fill the territories with a strength and a player's ID
                 myMap.initNeighbors(); //Fill the neighbors for each territory
+
+                gui.play(myMap);
 
                 System.out.print("Test");
             }
