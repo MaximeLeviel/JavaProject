@@ -260,7 +260,9 @@ public class GUI extends Game{
 
                 //Creation of the players
                 gui.createPlayers();
+
                 gui.initMap(myMap.map); //Fill the territories with a strength and a player's ID
+
                 myMap.initNeighbors(); //Fill the neighbors for each territory
 
                 gui.play(myMap);
