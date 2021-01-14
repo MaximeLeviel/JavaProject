@@ -19,7 +19,7 @@ public class GUI extends Game{
         //TODO : Demander les noms (optionel)
         players = new ArrayList<>();
         for(int i = 0; i < nbPlayer; i++){
-            Player player = new Player(i, "Player " + i);
+            Player player = new Player(i, "Player " + (i + 1));
             players.add(player);
         }
     }
@@ -93,6 +93,7 @@ public class GUI extends Game{
         final boolean[] processing = {false};
         final Integer[] attacker = {null};
         final Integer[] defender = {null};
+        final ArrayList<Integer>[] winners = new ArrayList[]{winners()};
 
         JFrame gameFrame = new JFrame("Map");
         gameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -107,7 +108,7 @@ public class GUI extends Game{
         //Declare the top part, with information
         JPanel playerPanel = new JPanel();
         playerPanel.setLayout(new BoxLayout(playerPanel, BoxLayout.Y_AXIS));
-        JLabel playerLabel = new JLabel("Player " + (player[0] + 1) + ", it's your turn");
+        JLabel playerLabel = new JLabel(players.get(player[0]).getName() + ", it's your turn");
         JLabel colorLabel = new JLabel("Your color");
         colorLabel.setForeground(colors[player[0] + 1]);
         JLabel instructionLabel = new JLabel("<html>Choose which territory you want to attack with or select 'Finish' to end your turn.</html>");
@@ -164,9 +165,14 @@ public class GUI extends Game{
                                 instructionLabel.setText("<html>Choose which territory you want to attack with or " +
                                         "select 'Finish' to end your turn.</html>");
                                 playerPanel.revalidate();
-                                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame);
+                                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame, winners[0]);
                             }
                             else{
+                                winners[0] = winners();
+                                if(winners[0].size() == 1){
+                                    gameFrame.dispose();
+                                    endOfGame(winners[0].get(0));
+                                }
                                 instructionLabel.setText("<html>Congratulations, you won ! Choose which territory you want to " +
                                         "attack with or select 'Finish' to end your turn.</html>");
                                 playerPanel.revalidate();
@@ -202,7 +208,7 @@ public class GUI extends Game{
             @Override
             public void actionPerformed(ActionEvent e) {
                 bonusDices(players.get(player[0]));
-                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame);
+                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame, winners[0]);
             }
         });
 
@@ -223,23 +229,16 @@ public class GUI extends Game{
     }
 
     private void endTurn(int[] player, JPanel playerPanel, JLabel playerLabel, JLabel colorLabel, boolean[] processing,
-                         ArrayList<JButton>  buttons, JPanel mapPanel, Maps myMap, JFrame gameFrame){
-        ArrayList<Integer> winners = winners();
-        if(winners.size() == 1){
-            gameFrame.dispose();
-            endOfGame(winners.get(0));
-        }
-        else{
-            do{
-                player[0] = (player[0] + 1) % nbPlayer;
-            }while(!winners.contains(player[0]));
-            playerLabel.setText("Joueur " + (player[0] + 1) + ", à ton tour");
-            colorLabel.setForeground(colors[player[0] + 1]);
-            playerPanel.revalidate();
-            processing[0] = false;
-            addData(buttons, mapPanel, myMap);
+                         ArrayList<JButton>  buttons, JPanel mapPanel, Maps myMap, JFrame gameFrame, ArrayList<Integer> winners){
 
-        }
+        do{
+            player[0] = (player[0] + 1) % nbPlayer;
+        }while(!winners.contains(player[0]));
+        playerLabel.setText(players.get(player[0]).getName() + ", it's your turn.");
+        colorLabel.setForeground(colors[player[0] + 1]);
+        playerPanel.revalidate();
+        processing[0] = false;
+        addData(buttons, mapPanel, myMap);
     }
 
     private void lostMessage(String name){
