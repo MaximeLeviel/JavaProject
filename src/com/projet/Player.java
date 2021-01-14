@@ -22,6 +22,10 @@ public class Player {
         return this.territories;
     }
 
+    public Territory getTerritory(int id){
+        return territories.get(id);
+    }
+
     public int getNbDices(){
         return this.nbDices;
     }

@@ -24,6 +24,13 @@ public class GUI extends Game{
     private void play(Maps myMap){
         JFrame gameFrame = new JFrame("Map");
         gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JPanel masterPanel = new JPanel();
+
+        final int[] player = {(int) (Math.random() * nbPlayer)};
+        JPanel playerPanel = new JPanel();
+        JLabel playerLabel = new JLabel("Joueur " + (player[0] + 1) + ", à ton tour");
+        playerPanel.add(playerLabel);
+
         JPanel mapPanel = new JPanel();
         mapPanel.setLayout(new GridLayout(myMap.map[0].length, myMap.map.length));
         ArrayList<JButton> buttons = new ArrayList<>();
@@ -43,6 +50,11 @@ public class GUI extends Game{
                     JButton source = (JButton) e.getSource();
                     int id = buttons.indexOf(source);
                     System.out.println(id);
+
+                    player[0] = (player[0] + 1) % nbPlayer;
+                    playerLabel.setText("Joueur " + (player[0] + 1) + ", à ton tour");
+                    playerPanel.revalidate();
+                    System.out.println(player[0]);
                 }
             });
             buttons.add(button);
@@ -50,7 +62,10 @@ public class GUI extends Game{
         }
 
         gameFrame.setSize(500, 500);
-        gameFrame.getContentPane().add(mapPanel);
+        masterPanel.setLayout(new BoxLayout(masterPanel, BoxLayout.Y_AXIS));
+        masterPanel.add(playerPanel);
+        masterPanel.add(mapPanel);
+        gameFrame.getContentPane().add(masterPanel);
         gameFrame.setVisible(true);
 
         System.out.println("test");
