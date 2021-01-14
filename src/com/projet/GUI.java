@@ -110,7 +110,7 @@ public class GUI extends Game{
         JLabel playerLabel = new JLabel("Player " + (player[0] + 1) + ", it's your turn");
         JLabel colorLabel = new JLabel("Your color");
         colorLabel.setForeground(colors[player[0] + 1]);
-        JLabel instructionLabel = new JLabel("<html>Choose which territory you want to attack with or select 'Finish' to end your turn.");
+        JLabel instructionLabel = new JLabel("<html>Choose which territory you want to attack with or select 'Finish' to end your turn.</html>");
         playerPanel.add(playerLabel);
         playerPanel.add(colorLabel);
         playerPanel.add(instructionLabel);
@@ -160,7 +160,9 @@ public class GUI extends Game{
                             };
                             win = attack(players.get(player[0]), attackList, myMap.map);
                             if (!win){
-                                instructionLabel.setText("<html>Sorry, you lost.</html>");
+                                lostMessage(players.get(player[0]).getName());
+                                instructionLabel.setText("<html>Choose which territory you want to attack with or " +
+                                        "select 'Finish' to end your turn.</html>");
                                 playerPanel.revalidate();
                                 endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame);
                             }
@@ -238,6 +240,25 @@ public class GUI extends Game{
             addData(buttons, mapPanel, myMap);
 
         }
+    }
+
+    private void lostMessage(String name){
+        JFrame lostFrame = new JFrame("You lost.");
+        lostFrame.setSize(250, 100);
+        lostFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        JPanel lostPanel = new JPanel();
+        JLabel lostLabel = new JLabel("Sorry " + name + ", you lost the dice roll.");
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                lostFrame.dispose();
+            }
+        });
+        lostPanel.add(lostLabel);
+        lostPanel.add(okButton);
+        lostFrame.getContentPane().add(lostPanel);
+        lostFrame.setVisible(true);
     }
 
     private void endOfGame(int winner){
