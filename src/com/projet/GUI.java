@@ -336,16 +336,24 @@ public class GUI extends Game{
         CSVCheckBoxPanel.add(CSVCheckBox);
 
         JPanel CSVPanel = new JPanel();
-        CSVPanel.setLayout(new BoxLayout(CSVPanel, BoxLayout.X_AXIS));
+        CSVPanel.setLayout(new BoxLayout(CSVPanel, BoxLayout.Y_AXIS));
+        JPanel CSVNamePanel = new JPanel();
+        CSVNamePanel.setLayout(new BoxLayout(CSVNamePanel, BoxLayout.X_AXIS));
         JLabel CSVLabel = new JLabel("Enter the name of the file : ");
         JTextField CSVTextField = new JTextField();
         CSVTextField.setMaximumSize(new Dimension(150, 25));
-        CSVPanel.add(CSVLabel);
-        CSVPanel.add(CSVTextField);
-        CSVPanel.setVisible(false);
+        CSVNamePanel.add(CSVLabel);
+        CSVNamePanel.add(CSVTextField);
 
-        JLabel ErrorCSVLabel = new JLabel("The file specified doesn't exist. Please enter a new one");
-        ErrorCSVLabel.setVisible(false);
+        JPanel errorCSVPanel = new JPanel();
+        errorCSVPanel.setLayout(new BoxLayout(errorCSVPanel, BoxLayout.X_AXIS));
+        JLabel errorCSVLabel = new JLabel("The file specified doesn't exist. Please enter a new one");
+        errorCSVLabel.setVisible(false);
+        errorCSVPanel.add(errorCSVLabel);
+
+        CSVPanel.add(CSVNamePanel);
+        CSVPanel.add(errorCSVPanel);
+        CSVPanel.setVisible(false);
 
         JPanel linesPanel = new JPanel();
         linesPanel.setLayout(new BoxLayout(linesPanel, BoxLayout.X_AXIS));
@@ -408,7 +416,7 @@ public class GUI extends Game{
 
                     gui.play(myMap);
                 } catch (FileNotFoundException fileNotFoundException) {
-                    ErrorCSVLabel.setVisible(true);
+                    errorCSVLabel.setVisible(true);
                 }
             }
         });
@@ -416,7 +424,6 @@ public class GUI extends Game{
         launchPanel.add(playerNbPanel);
         launchPanel.add(CSVCheckBoxPanel);
         launchPanel.add(CSVPanel);
-        launchPanel.add(ErrorCSVLabel);
         launchPanel.add(linesPanel);
         launchPanel.add(columnsPanel);
         launchPanel.add(validateButton);
