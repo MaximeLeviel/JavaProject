@@ -2,11 +2,12 @@ package com.projet;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-public class Maps {
+public class Maps implements Serializable {
     //Attributes
     public Territory[][] map;
 

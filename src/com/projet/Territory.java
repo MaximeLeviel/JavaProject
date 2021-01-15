@@ -1,8 +1,9 @@
 package com.projet;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Territory {
+public class Territory implements Serializable {
     //Attributes
     private final int ID;
     private int playerID;

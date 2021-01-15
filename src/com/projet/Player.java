@@ -1,12 +1,13 @@
 package com.projet;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Player {
+public class Player implements Serializable {
     //Attributes
-    private final int ID;
-    private final String name;
-    private final TreeMap<Integer, Territory> territories;
+    private int ID;
+    private String name;
+    private TreeMap<Integer, Territory> territories;
     private int nbDices;
 
     //Constructor
@@ -128,7 +129,7 @@ public class Player {
         return null;
     }
 
-    private int attackFrom(ArrayList<Integer> listAttack) throws ImpossibleAttackException{
+    private int attackFrom(ArrayList<Integer> listAttack) throws ImpossibleAttackException {
 
         //If no territories can attack
         if (listAttack.size() == 0){
@@ -186,10 +187,19 @@ public class Player {
         }
     }
 
-    public int endTurn(Game game){//We must have access to game to use the function checkinput
+    public static class StopException extends Throwable{
+        public StopException(String errorMessage){
+            super(errorMessage);
+        }
+    }
+
+    public int endTurn(Game game) throws StopException {//We must have access to game to use the function checkinput
         int turn = 1;
-        System.out.println("Do you want to attack ? 1. Yes 0. No");
-        turn = Game.checkInput(0, 1);
+        System.out.println("Do you want to attack ? \n0.No \n1.Yes \n2.Save the game.");
+        turn = Game.checkInput(0, 2);
+        if (turn == 2){
+            throw new StopException("The player stop the game.");
+        }
         return turn;
     }
 

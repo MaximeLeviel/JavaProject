@@ -1,12 +1,12 @@
 package com.projet;
 
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.*;
 
-public class Game {
+public class Game implements Serializable {
     //Attributes
-    protected final int nbPlayer;
-    protected final int nbTerritories;
+    protected int nbPlayer;
+    protected int nbTerritories;
     protected ArrayList<Player> players;
 
     //Constructor
@@ -287,123 +287,154 @@ public class Game {
     public static void main(String[] Arg) {
         int opt = 1;
         do {
-            int nbPlayer, line, column;
+            int nbPlayer, line, column, player;
+            Game game;
+            Maps myMap;
+            String input;
 
             System.out.println("=================================== WELCOME TO RISK ===================================\n");
 
-            System.out.println("-------------- NUMBER OF PLAYERS --------------\n");
-            nbPlayer = checkInput(2, 6);
-            System.out.println("\nNumber of players: " + nbPlayer);
-
-            int nbTerritories;
-
-            //Creation of the map
-            Maps myMap;
-            System.out.println("\nDo you want to load the map from a CSV file ? \n0.Yes\n1.No");
             Scanner sc = new Scanner(System.in);
-            int response = checkInput(0,1);
 
-            if (response == 0){
-                System.out.print("\nEnter the name of the CSV file.\n");
+            System.out.println("-------------- SAVE OF THE GAME --------------\n");
+            System.out.println("Do you want to load the save from a previous game ? \n0.Yes\n1.No");
+            if (checkInput(0, 1) == 0){
+                System.out.println("\nPlease enter the name of the save.");
                 String name = sc.nextLine();
-                while(true){
-                    try {
-                        myMap = new Maps(name + ".csv");
-                        break;
-                    } catch (FileNotFoundException e) {
-                        System.out.print("The file with the specified name doesn't exist, please specify a new one. \n");
-                    }
+                try {
+                    Save save = Save.deserialize(name + ".txt");
+                    game = save.getGame();
+                    myMap = save.getMyMap();
+                    player = save.getPlayer();
+                    nbPlayer = game.nbPlayer;
+                } catch (IOException | ClassNotFoundException e) {
+                    System.out.println("Something went wrong during the loading of the game. Sorry.");
+                    return;
                 }
-                nbTerritories = myMap.map.length * myMap.map[0].length;
             }
             else{
-                System.out.println("\n--------------- SIZE OF THE MAP ---------------\n");
-                System.out.println("Enter the number of lines: ");
-                line = checkInput(4, 9);
-                System.out.println("Enter the number of columns: ");
-                column = checkInput(4, 10);
-                nbTerritories = line*column;
+                System.out.println("-------------- NUMBER OF PLAYERS --------------\n");
+                nbPlayer = checkInput(2, 6);
+                System.out.println("\nNumber of players: " + nbPlayer);
 
-                myMap = new Maps(line, column); //Create a map of dimension line*column (empty)
-                myMap.createMap(); //Fill the map with Territories ID
+                int nbTerritories;
+
+                //Creation of the map
+                System.out.println("\nDo you want to load the map from a CSV file ? \n0.Yes\n1.No");
+                int response = checkInput(0,1);
+
+                if (response == 0){
+                    System.out.print("\nEnter the name of the CSV file.\n");
+                    String name = sc.nextLine();
+                    while(true){
+                        try {
+                            myMap = new Maps(name + ".csv");
+                            break;
+                        } catch (FileNotFoundException e) {
+                            System.out.print("The file with the specified name doesn't exist, please specify a new one. \n");
+                        }
+                    }
+                    nbTerritories = myMap.map.length * myMap.map[0].length;
+                }
+                else{
+                    System.out.println("\n--------------- SIZE OF THE MAP ---------------\n");
+                    System.out.println("Enter the number of lines: ");
+                    line = checkInput(4, 9);
+                    System.out.println("Enter the number of columns: ");
+                    column = checkInput(4, 10);
+                    nbTerritories = line*column;
+
+                    myMap = new Maps(line, column); //Create a map of dimension line*column (empty)
+                    myMap.createMap(); //Fill the map with Territories ID
+                }
+
+                //Creation of the game
+                System.out.println("\n------------- NAME OF THE PLAYERS -------------");
+                game = new Game(nbPlayer, nbTerritories);
+
+                //Creation of the players
+                game.createPlayers();
+                game.initMap(myMap.map); //Fill the territories with a strength and a player's ID
+                myMap.initNeighbors(); //Fill the neighbors for each territory
+
+
+
+                //Display
+                System.out.println("\n----------------------------------------- INITIALIZATION -----------------------------------------\n");
+                game.displayMap(myMap.map);
+                game.displayPlayers();
+
+                //Just for better display
+                System.out.println("Press enter to continue");
+                input = sc.nextLine();
+
+
+                System.out.println("\n------------------------------------ START OF THE GAME ------------------------------------");
+                player = (int) (Math.random() * nbPlayer);
+                System.out.println("Player " + (player+1) + " will begin:");
             }
 
-            //Creation of the game
-            System.out.println("\n------------- NAME OF THE PLAYERS -------------");
-            Game game = new Game(nbPlayer, nbTerritories);
-
-            //Creation of the players
-            game.createPlayers();
-            game.initMap(myMap.map); //Fill the territories with a strength and a player's ID
-            myMap.initNeighbors(); //Fill the neighbors for each territory
-
-
-
-            //Display
-            System.out.println("\n----------------------------------------- INITIALIZATION -----------------------------------------\n");
-            game.displayMap(myMap.map);
-            game.displayPlayers();
-
-            //Just for better display
-            System.out.println("Press enter to continue");
-            String input = sc.nextLine();
-
-
-            System.out.println("\n------------------------------------ START OF THE GAME ------------------------------------");
-            int player = (int) (Math.random() * nbPlayer);
-            System.out.println("Player " + (player+1) + " will begin:");
-
-            do{
-                boolean win = true;
-                int turn = 1;
+            try{
                 do{
-                    game.displayMap(myMap.map);
-                    System.out.print("\n--------------------- PLAYER " + (player + 1) + ", IT'S TIME TO ATTACK ! ---------------------");
-                    System.out.println(game.players.get(player));
-                    turn = game.players.get(player).endTurn(game);
+                    boolean win = true;
+                    int turn = 1;
+                    do{
+                        game.displayMap(myMap.map);
+                        System.out.print("\n--------------------- PLAYER " + (player + 1) + ", IT'S TIME TO ATTACK ! ---------------------");
+                        System.out.println(game.players.get(player));
+                        turn = game.players.get(player).endTurn(game);
 
-                    if(turn == 1){//If the player wants to attack
-                        ArrayList<Integer> listAttack;
-                        listAttack = game.players.get(player).attackTerritories(myMap); //select the territory that will attack and the defender
-
-                        if(listAttack != null && listAttack.size() != 0){//If the player can attack
-                            win = game.attack(game.players.get(player), listAttack, myMap.map); //launch the attack
+                        if(turn == 1){//If the player wants to attack
+                            ArrayList<Integer> listAttack;
+                            listAttack = game.players.get(player).attackTerritories(myMap); //select the territory that will attack and the defender
+                            if(listAttack != null && listAttack.size() != 0){//If the player can attack
+                                win = game.attack(game.players.get(player), listAttack, myMap.map); //launch the attack
+                            }
+                            else{
+                                game.bonusDices(game.players.get(player)); //If player decides to stop, they get bonus dices
+                                turn = 0;
+                            }
                         }
-                        else{
+
+                        else{//If the player wants to stop attacking
                             game.bonusDices(game.players.get(player)); //If player decides to stop, they get bonus dices
-                            turn = 0;
                         }
-                    }
 
-                    else{//If the player wants to stop attacking
-                        game.bonusDices(game.players.get(player)); //If player decides to stop, they get bonus dices
-                    }
+                        //Just for better display
+                        System.out.println("Press enter to continue");
+                        sc = new Scanner(System.in);
+                        input = sc.nextLine();
+
+                    }while(win && turn != 0);
+
+                    System.out.print("-------------------- Here is your army after you played --------------------");
+                    System.out.println(game.players.get(player));
 
                     //Just for better display
                     System.out.println("Press enter to continue");
                     sc = new Scanner(System.in);
                     input = sc.nextLine();
 
-                }while(win && turn != 0);
+                    do{
+                        if(player != (nbPlayer-1)){//if we are not at the last player's turn
+                            player = player + 1; //We go to the next player
+                        }
+                        else{
+                            player = 0; //We go back to first player
+                        }
+                    }while(game.players.get(player).getTerritories().size() == 0);// go to next player if player has lost all their territories
 
-                System.out.print("-------------------- Here is your army after you played --------------------");
-                System.out.println(game.players.get(player));
-
-                //Just for better display
-                System.out.println("Press enter to continue");
-                sc = new Scanner(System.in);
-                input = sc.nextLine();
-
-                do{
-                    if(player != (nbPlayer-1)){//if we are not at the last player's turn
-                        player = player + 1; //We go to the next player
-                    }
-                    else{
-                        player = 0; //We go back to first player
-                    }
-                }while(game.players.get(player).getTerritories().size() == 0);// go to next player if player has lost all their territories
-
-            }while(!game.endCondition());
+                }while(!game.endCondition());
+            } catch (Player.StopException e) {
+                Save save = new Save(game, myMap, player);
+                System.out.println("Please enter the name of the file you want to save in.");
+                String fileName = sc.nextLine();
+                try{
+                    save.serialize(fileName + ".txt");
+                } catch (IOException ioException) {
+                    System.out.println("Something went wrong during the save of your game. Sorry.");
+                }
+            }
 
             System.out.println("\n------------------------------------ END OF THE GAME ------------------------------------");
             System.out.println("\n====================================\n====================================\nCongratulation " + game.players.get(player).getName() + " your army has won ! ^(^u^)^ ^(^u^)^ ^(^u^)^ \n====================================\n====================================");
@@ -413,5 +444,46 @@ public class Game {
         while(opt != 0);
 
 
+    }
+
+    protected static class Save implements Serializable {
+        private final Game game;
+        private final Maps myMap;
+        private final int player;
+
+        Save(Game game, Maps myMap, int player){
+            this.game = game;
+            this.myMap = myMap;
+            this.player = player;
+        }
+
+        public Game getGame(){
+            return this.game;
+        }
+
+        public Maps getMyMap() {
+            return myMap;
+        }
+
+        public int getPlayer() {
+            return player;
+        }
+
+        protected void serialize(String filename) throws IOException {
+            FileOutputStream f = new FileOutputStream(filename);
+            ObjectOutputStream out = new ObjectOutputStream(f);
+            out.writeObject(this);
+            out.close();
+            f.close();
+        }
+
+        public static Save deserialize(String filename) throws IOException, ClassNotFoundException {
+            FileInputStream f = new FileInputStream(filename);
+            ObjectInputStream in = new ObjectInputStream(f);
+            Save stack = (Save)in.readObject();
+            in.close();
+            f.close();
+            return stack;
+        }
     }
 }
