@@ -4,6 +4,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.awt.*;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class GUI extends Game{
@@ -13,6 +14,13 @@ public class GUI extends Game{
     public GUI(int _nbPlayer, int _nbTerritories) {
         super(_nbPlayer, _nbTerritories);
         colors = new Color[] {Color.GRAY, Color.RED, Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.BLUE, Color.PINK};
+    }
+
+    public GUI(Game game){
+        super(game.nbPlayer, game.nbTerritories);
+        colors = new Color[] {Color.GRAY, Color.RED, Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.BLUE, Color.PINK};
+        players = new ArrayList<>();
+        players.addAll(game.players);
     }
 
     public void createPlayers(JFrame masterFrame) {
@@ -58,6 +66,91 @@ public class GUI extends Game{
         nameFrame.getContentPane().add(namePanel);
         nameFrame.pack();
         nameFrame.setVisible(true);
+    }
+
+    public static void loadSaveGame(){
+        JFrame loadFrame = new JFrame();
+        loadFrame.setTitle("Load a save");
+        loadFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        loadFrame.setLocationRelativeTo(null);
+
+        JPanel loadPanel = new JPanel();
+        loadPanel.setLayout(new BoxLayout(loadPanel, BoxLayout.Y_AXIS));
+        
+        JLabel loadLabel = new JLabel("Enter the name of the save");
+        JTextField loadTextField = new JTextField();
+        loadTextField.setPreferredSize(new Dimension(150, 25));
+
+        JLabel errorLabel = new JLabel("Sorry, the file doesn't exist. Try again.");
+        errorLabel.setVisible(false);
+
+        JButton loadButton = new JButton("Validate");
+        loadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = loadTextField.getText();
+                try {
+                    Save save = Save.deserialize(name + ".txt");
+                    Game game = save.getGame();
+                    GUI gui = new GUI(game);
+                    Maps myMap = save.getMyMap();
+                    int[] player = {save.getPlayer()};
+
+                    gui.play(myMap, player);
+                    loadFrame.dispose();
+                } catch (IOException | ClassNotFoundException ioException) {
+                    errorLabel.setVisible(true);
+                }
+        }
+        });
+
+        loadPanel.add(loadLabel);
+        loadPanel.add(loadTextField);
+        loadPanel.add(errorLabel);
+        loadPanel.add(loadButton);
+        loadFrame.getContentPane().add(loadPanel);
+        loadFrame.pack();
+        loadFrame.setVisible(true);
+    }
+    
+    private void saveGame(Maps myMap, int player){
+        JFrame saveFrame = new JFrame();
+        saveFrame.setTitle("Save the gamae");
+        saveFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        saveFrame.setLocationRelativeTo(null);
+
+        JPanel savePanel = new JPanel();
+        savePanel.setLayout(new BoxLayout(savePanel, BoxLayout.Y_AXIS));
+
+        JLabel saveLabel = new JLabel("Enter the name of the save");
+        JTextField loadTextField = new JTextField();
+        loadTextField.setPreferredSize(new Dimension(150, 25));
+
+        JButton saveButton = new JButton("Validate");
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = loadTextField.getText();
+                Save save = new Save(outerClass(), myMap, player);
+                try{
+                    save.serialize(name + ".txt");
+                    popUpMessage("Saved", "Game saved, you can now leave.");
+                } catch (IOException ioException) {
+                    popUpMessage("Error", "Sorry, something went wrong during the save.");
+                }
+            }
+        });
+
+        savePanel.add(saveLabel);
+        savePanel.add(loadTextField);
+        savePanel.add(saveButton);
+        saveFrame.getContentPane().add(savePanel);
+        saveFrame.pack();
+        saveFrame.setVisible(true);
+    }
+
+    private GUI outerClass(){
+        return this;
     }
 
     @Override
@@ -125,7 +218,7 @@ public class GUI extends Game{
         mapPanel.revalidate();
     }
 
-    private void play(Maps myMap){
+    private void play(Maps myMap, int[] player){
         final boolean[] processing = {false};
         final Integer[] attacker = {null};
         final Integer[] defender = {null};
@@ -139,9 +232,6 @@ public class GUI extends Game{
 
         //Declare before the map because we need to access it from within the actionListener of the map
         JButton previousButton = new JButton("Previous");
-
-        //Determine which player starts
-        final int[] player = {(int) (Math.random() * nbPlayer)};
 
         //Declare the top part, with information
         JPanel playerPanel = new JPanel();
@@ -240,6 +330,14 @@ public class GUI extends Game{
             }
         });
         previousButton.setVisible(false);
+        
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveGame(myMap, player[0]);
+            }
+        });
 
         JButton finishButton = new JButton("Finish");
         finishButton.addActionListener(new ActionListener() {
@@ -253,6 +351,7 @@ public class GUI extends Game{
 
         addData(buttons, mapPanel, myMap);
 
+        buttonPanel.add(saveButton);
         buttonPanel.add(previousButton);
         buttonPanel.add(finishButton);
 
@@ -418,6 +517,9 @@ public class GUI extends Game{
             }
         });
 
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+
         JButton validateButton = new JButton("Validate");
         validateButton.addActionListener(new ActionListener() {
             @Override
@@ -449,19 +551,34 @@ public class GUI extends Game{
                     gui.initMap(myMap.map); //Fill the territories with a strength and a player's ID
                     myMap.initNeighbors(); //Fill the neighbors for each territory
 
-                    gui.play(myMap);
+                    //Determine which player starts
+                    int[] player = {(int) (Math.random() * nbPlayer)};
+
+                    gui.play(myMap, player);
                 } catch (FileNotFoundException fileNotFoundException) {
                     errorCSVLabel.setVisible(true);
                 } catch (Exception ignored){}
             }
         });
 
+        JButton loadButton = new JButton("Load a save");
+        loadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                GUI gui = new GUI(0, 0);
+                loadSaveGame();
+            }
+        });
+
+        buttonPanel.add(loadButton);
+        buttonPanel.add(validateButton);
+
         launchPanel.add(playerNbPanel);
         launchPanel.add(CSVCheckBoxPanel);
         launchPanel.add(CSVPanel);
         launchPanel.add(linesPanel);
         launchPanel.add(columnsPanel);
-        launchPanel.add(validateButton);
+        launchPanel.add(buttonPanel);
 
         launchFrame.getContentPane().add(launchPanel);
         launchFrame.setVisible(true);
