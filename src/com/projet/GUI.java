@@ -15,14 +15,49 @@ public class GUI extends Game{
         colors = new Color[] {Color.GRAY, Color.RED, Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.BLUE, Color.PINK};
     }
 
-    @Override
-    public void createPlayers() {
-        //TODO : Demander les noms (optionel)
-        players = new ArrayList<>();
+    public void createPlayers(JFrame masterFrame) {
+        JDialog nameFrame = new JDialog(masterFrame, "Player names");
+        nameFrame.setModal(true);
+        nameFrame.setLocationRelativeTo(null);
+        JPanel namePanel = new JPanel();
+        namePanel.setLayout(new BoxLayout(namePanel, BoxLayout.Y_AXIS));
+
+        ArrayList<JTextField> nameTextFields = new ArrayList<>();
+
         for(int i = 0; i < nbPlayer; i++){
-            Player player = new Player(i, "Player " + (i + 1));
-            players.add(player);
+            JTextField nameTextField = new JTextField();
+            nameTextField.setPreferredSize(new Dimension(150, 25));
+            nameTextFields.add(nameTextField);
+
+            JLabel nameLabel = new JLabel("Name " + (i + 1) + " :");
+            namePanel.add(nameLabel);
+            namePanel.add(nameTextField);
         }
+
+        JButton validateButton = new JButton("Validate");
+        validateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                players = new ArrayList<>();
+                for(int i = 0; i < nbPlayer; i++){
+                    Player player;
+                    if(nameTextFields.get(i).getText().isEmpty()){
+                        player = new Player(i, "Player " + (i + 1));
+                    }
+                    else{
+                        player = new Player(i, nameTextFields.get(i).getText());
+                    }
+                    players.add(player);
+                }
+                nameFrame.dispose();
+            }
+        });
+
+        namePanel.add(validateButton);
+
+        nameFrame.getContentPane().add(namePanel);
+        nameFrame.pack();
+        nameFrame.setVisible(true);
     }
 
     @Override
@@ -410,14 +445,14 @@ public class GUI extends Game{
                     GUI gui = new GUI(nbPlayer, nbTerritories);
 
                     //Creation of the players
-                    gui.createPlayers();
+                    gui.createPlayers(launchFrame);
                     gui.initMap(myMap.map); //Fill the territories with a strength and a player's ID
                     myMap.initNeighbors(); //Fill the neighbors for each territory
 
                     gui.play(myMap);
                 } catch (FileNotFoundException fileNotFoundException) {
                     errorCSVLabel.setVisible(true);
-                }
+                } catch (Exception ignored){}
             }
         });
 
