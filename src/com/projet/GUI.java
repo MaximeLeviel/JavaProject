@@ -546,19 +546,10 @@ public class GUI extends Game{
                     //Creation of the game
                     GUI gui = new GUI(nbPlayer, nbTerritories);
 
-<<<<<<< HEAD
-                //Creation of the players
-                gui.createPlayers();
-
-                gui.initMap(myMap.map); //Fill the territories with a strength and a player's ID
-
-                myMap.initNeighbors(); //Fill the neighbors for each territory
-=======
                     //Creation of the players
                     gui.createPlayers(launchFrame);
                     gui.initMap(myMap.map); //Fill the territories with a strength and a player's ID
                     myMap.initNeighbors(); //Fill the neighbors for each territory
->>>>>>> master
 
                     //Determine which player starts
                     int[] player = {(int) (Math.random() * nbPlayer)};
