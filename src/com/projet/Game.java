@@ -67,7 +67,7 @@ public class Game implements Serializable {
 
                 try {
                     territory = findTerritoryByID(map, territoryId); //returns the territory associated to the territoryID
-                    territory.setPlayerID(player.getID());
+                    territory.setPlayerID(player.getID()); //associate the PlayerId to the territory
                     player.addToTerritories(territory); //associate the territory to the player
                 } catch (Maps.NonexistentIdException e) {
                     System.out.println("The territory has not been found");
@@ -75,7 +75,7 @@ public class Game implements Serializable {
             }
         }
 
-        if(excess !=0){
+        if(excess !=0){//For the territories that we can't dispatch equally
             int cpt = 0;
             do{
                 for(int i = 1; i <= nbTerritories; i++){
@@ -83,14 +83,13 @@ public class Game implements Serializable {
                         takenTerritories.add(i);//We add the territory has a taken territory
                         try {
                             territory = findTerritoryByID(map, i); //returns the territory associated to the territoryID
-                            territory.setPlayerID(-1); //We block the territory
+                            territory.setPlayerID(-1); //We block the territory (can't be attacked)
                             cpt++;
                         } catch (Maps.NonexistentIdException e) {
-                            System.out.println("The territory has not been found"); //Should never happen
+                            System.out.println("The territory has not been found");
                         }
                     }
                 }
-                System.out.println("TEST");
             }while(cpt != excess);
         }
 
@@ -132,8 +131,8 @@ public class Game implements Serializable {
     public boolean endCondition(){
         //If a player has all territories
         for(Player player : players){
-            int var = nbTerritories % nbPlayer; //number of territories not distributed
-            if(player.getTerritories().size() == nbTerritories - var){ //If a player has all territories except the ones not distributes
+            int var = nbTerritories % nbPlayer; //number of territories blocked (not distributed)
+            if(player.getTerritories().size() == nbTerritories - var){ //If a player has all territories except the ones not distributed
                 return true;//Then the game ends
             }
         }
@@ -239,10 +238,10 @@ public class Game implements Serializable {
                     random = new Random();
                     randomKey = keys.get( random.nextInt(keys.size()) );
                     territory = player.getTerritories().get(randomKey);
-                }while(territory.getStrength() == 8); //if the territory has already 8 dices draw again
+                }while(territory.getStrength() == 8); //if the territory has already 8 dices, draw again
                 territory.setStrength(territory.getStrength()+1);//Add one dice to the territory
             }
-            player.setNbDices(player.getNbDices() + bonusDices);//Add the bonusDices to the number of dices
+            player.setNbDices(player.getNbDices() + bonusDices);//Add the bonusDices to the total number of dices of the player
         }
     }
 
@@ -279,6 +278,13 @@ public class Game implements Serializable {
         System.out.println("==============================\nYou get a bonus of " + maxContiguous + " dices\n==============================");
         distributeDices(player, maxContiguous);//call the function to distribute the dices randomly
         return maxContiguous;
+    }
+
+    //Ask the user to press enter to continue
+    public static void pressEnter(){
+        System.out.println("Press enter to continue");
+        Scanner sc = new Scanner(System.in);
+        String input = sc.nextLine();
     }
 
     //MAIN
@@ -357,17 +363,11 @@ public class Game implements Serializable {
                     game.initMap(myMap.map); //Fill the territories with a strength and a player's ID
                     myMap.initNeighbors(); //Fill the neighbors for each territory
 
-
-
                     //Display
                     System.out.println("\n----------------------------------------- INITIALIZATION -----------------------------------------\n");
                     game.displayMap(myMap.map);
                     game.displayPlayers();
-
-                    //Just for better display
-                    System.out.println("Press enter to continue");
-                    input = sc.nextLine();
-
+                    Game.pressEnter();
 
                     System.out.println("\n------------------------------------ START OF THE GAME ------------------------------------");
                     player = (int) (Math.random() * nbPlayer);
@@ -398,24 +398,17 @@ public class Game implements Serializable {
                             }
                         }
 
-                        else{//If the player wants to stop attacking
-                            game.bonusDices(game.players.get(player)); //If player decides to stop, they get bonus dices
+                        else{//If the player doesn't attack
+                            game.bonusDices(game.players.get(player));
                         }
-
-                        //Just for better display
-                        System.out.println("Press enter to continue");
-                        sc = new Scanner(System.in);
-                        input = sc.nextLine();
+                        Game.pressEnter();
 
                     }while(win && turn != 0);
 
                     System.out.print("-------------------- Here is your army after you played --------------------");
                     System.out.println(game.players.get(player));
 
-                    //Just for better display
-                    System.out.println("Press enter to continue");
-                    sc = new Scanner(System.in);
-                    input = sc.nextLine();
+                    Game.pressEnter();
 
                     do{
                         if(player != (nbPlayer-1)){//if we are not at the last player's turn
