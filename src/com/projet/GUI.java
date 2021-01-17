@@ -3,6 +3,8 @@ package com.projet;
 import java.awt.event.*;
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class GUI extends Game{
@@ -14,14 +16,141 @@ public class GUI extends Game{
         colors = new Color[] {Color.GRAY, Color.RED, Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.BLUE, Color.PINK};
     }
 
-    @Override
-    public void createPlayers() {
-        //TODO : Demander les noms (optionel)
+    public GUI(Game game){
+        super(game.nbPlayer, game.nbTerritories);
+        colors = new Color[] {Color.GRAY, Color.RED, Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.BLUE, Color.PINK};
         players = new ArrayList<>();
+        players.addAll(game.players);
+    }
+
+    public void createPlayers(JFrame masterFrame) {
+        JDialog nameFrame = new JDialog(masterFrame, "Player names");
+        nameFrame.setModal(true);
+        nameFrame.setLocationRelativeTo(null);
+        JPanel namePanel = new JPanel();
+        namePanel.setLayout(new BoxLayout(namePanel, BoxLayout.Y_AXIS));
+
+        ArrayList<JTextField> nameTextFields = new ArrayList<>();
+
         for(int i = 0; i < nbPlayer; i++){
-            Player player = new Player(i, "Player " + i);
-            players.add(player);
+            JTextField nameTextField = new JTextField();
+            nameTextField.setPreferredSize(new Dimension(150, 25));
+            nameTextFields.add(nameTextField);
+
+            JLabel nameLabel = new JLabel("Name " + (i + 1) + " :");
+            namePanel.add(nameLabel);
+            namePanel.add(nameTextField);
         }
+
+        JButton validateButton = new JButton("Validate");
+        validateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                players = new ArrayList<>();
+                for(int i = 0; i < nbPlayer; i++){
+                    Player player;
+                    if(nameTextFields.get(i).getText().isEmpty()){
+                        player = new Player(i, "Player " + (i + 1));
+                    }
+                    else{
+                        player = new Player(i, nameTextFields.get(i).getText());
+                    }
+                    players.add(player);
+                }
+                nameFrame.dispose();
+            }
+        });
+
+        namePanel.add(validateButton);
+
+        nameFrame.getContentPane().add(namePanel);
+        nameFrame.pack();
+        nameFrame.setVisible(true);
+    }
+
+    public static void loadSaveGame(){
+        JFrame loadFrame = new JFrame();
+        loadFrame.setTitle("Load a save");
+        loadFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        loadFrame.setLocationRelativeTo(null);
+
+        JPanel loadPanel = new JPanel();
+        loadPanel.setLayout(new BoxLayout(loadPanel, BoxLayout.Y_AXIS));
+        
+        JLabel loadLabel = new JLabel("Enter the name of the save");
+        JTextField loadTextField = new JTextField();
+        loadTextField.setPreferredSize(new Dimension(150, 25));
+
+        JLabel errorLabel = new JLabel("Sorry, the file doesn't exist. Try again.");
+        errorLabel.setVisible(false);
+
+        JButton loadButton = new JButton("Validate");
+        loadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = loadTextField.getText();
+                try {
+                    Save save = Save.deserialize(name + ".txt");
+                    Game game = save.getGame();
+                    GUI gui = new GUI(game);
+                    Maps myMap = save.getMyMap();
+                    int[] player = {save.getPlayer()};
+
+                    gui.play(myMap, player);
+                    loadFrame.dispose();
+                } catch (IOException | ClassNotFoundException ioException) {
+                    errorLabel.setVisible(true);
+                }
+        }
+        });
+
+        loadPanel.add(loadLabel);
+        loadPanel.add(loadTextField);
+        loadPanel.add(errorLabel);
+        loadPanel.add(loadButton);
+        loadFrame.getContentPane().add(loadPanel);
+        loadFrame.pack();
+        loadFrame.setVisible(true);
+    }
+    
+    private void saveGame(Maps myMap, int player){
+        JFrame saveFrame = new JFrame();
+        saveFrame.setTitle("Save the gamae");
+        saveFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        saveFrame.setLocationRelativeTo(null);
+
+        JPanel savePanel = new JPanel();
+        savePanel.setLayout(new BoxLayout(savePanel, BoxLayout.Y_AXIS));
+
+        JLabel saveLabel = new JLabel("Enter the name of the save");
+        JTextField loadTextField = new JTextField();
+        loadTextField.setPreferredSize(new Dimension(150, 25));
+
+        JButton saveButton = new JButton("Validate");
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = loadTextField.getText();
+                Save save = new Save(outerClass(), myMap, player);
+                try{
+                    save.serialize(name + ".txt");
+                    popUpMessage("Saved", "Game saved, you can now leave.");
+                } catch (IOException ioException) {
+                    popUpMessage("Error", "Sorry, something went wrong during the save.");
+                }
+            }
+        });
+
+        savePanel.add(saveLabel);
+        savePanel.add(loadTextField);
+        savePanel.add(saveButton);
+        saveFrame.getContentPane().add(savePanel);
+        saveFrame.pack();
+        saveFrame.setVisible(true);
+    }
+
+    private GUI outerClass(){
+        return this;
     }
 
     @Override
@@ -89,25 +218,25 @@ public class GUI extends Game{
         mapPanel.revalidate();
     }
 
-    private void play(Maps myMap){
+    private void play(Maps myMap, int[] player){
         final boolean[] processing = {false};
         final Integer[] attacker = {null};
         final Integer[] defender = {null};
+        final ArrayList<Integer>[] winners = new ArrayList[]{winners()};
 
         JFrame gameFrame = new JFrame("Map");
         gameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        gameFrame.setLocationRelativeTo(null);
+
         JPanel masterPanel = new JPanel();
 
         //Declare before the map because we need to access it from within the actionListener of the map
         JButton previousButton = new JButton("Previous");
 
-        //Determine which player starts
-        final int[] player = {(int) (Math.random() * nbPlayer)};
-
         //Declare the top part, with information
         JPanel playerPanel = new JPanel();
         playerPanel.setLayout(new BoxLayout(playerPanel, BoxLayout.Y_AXIS));
-        JLabel playerLabel = new JLabel("Player " + (player[0] + 1) + ", it's your turn");
+        JLabel playerLabel = new JLabel(players.get(player[0]).getName() + ", it's your turn");
         JLabel colorLabel = new JLabel("Your color");
         colorLabel.setForeground(colors[player[0] + 1]);
         JLabel instructionLabel = new JLabel("<html>Choose which territory you want to attack with or select 'Finish' to end your turn.</html>");
@@ -160,13 +289,18 @@ public class GUI extends Game{
                             };
                             win = attack(players.get(player[0]), attackList, myMap.map);
                             if (!win){
-                                lostMessage(players.get(player[0]).getName());
+                                popUpMessage("You lost.", "Sorry " + players.get(player[0]).getName() + ", you lost the dice roll.");
                                 instructionLabel.setText("<html>Choose which territory you want to attack with or " +
                                         "select 'Finish' to end your turn.</html>");
                                 playerPanel.revalidate();
-                                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame);
+                                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame, winners[0]);
                             }
                             else{
+                                winners[0] = winners();
+                                if(winners[0].size() == 1){
+                                    gameFrame.dispose();
+                                    endOfGame(winners[0].get(0));
+                                }
                                 instructionLabel.setText("<html>Congratulations, you won ! Choose which territory you want to " +
                                         "attack with or select 'Finish' to end your turn.</html>");
                                 playerPanel.revalidate();
@@ -196,18 +330,28 @@ public class GUI extends Game{
             }
         });
         previousButton.setVisible(false);
+        
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveGame(myMap, player[0]);
+            }
+        });
 
         JButton finishButton = new JButton("Finish");
         finishButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                bonusDices(players.get(player[0]));
-                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame);
+                int bonus = bonusDices(players.get(player[0]));
+                popUpMessage("You win.", "Congratulations, you have won " + bonus + " bonus dices.");
+                endTurn(player, playerPanel, playerLabel, colorLabel, processing, buttons, mapPanel, myMap, gameFrame, winners[0]);
             }
         });
 
         addData(buttons, mapPanel, myMap);
 
+        buttonPanel.add(saveButton);
         buttonPanel.add(previousButton);
         buttonPanel.add(finishButton);
 
@@ -223,48 +367,45 @@ public class GUI extends Game{
     }
 
     private void endTurn(int[] player, JPanel playerPanel, JLabel playerLabel, JLabel colorLabel, boolean[] processing,
-                         ArrayList<JButton>  buttons, JPanel mapPanel, Maps myMap, JFrame gameFrame){
-        ArrayList<Integer> winners = winners();
-        if(winners.size() == 1){
-            gameFrame.dispose();
-            endOfGame(winners.get(0));
-        }
-        else{
-            do{
-                player[0] = (player[0] + 1) % nbPlayer;
-            }while(!winners.contains(player[0]));
-            playerLabel.setText("Joueur " + (player[0] + 1) + ", à ton tour");
-            colorLabel.setForeground(colors[player[0] + 1]);
-            playerPanel.revalidate();
-            processing[0] = false;
-            addData(buttons, mapPanel, myMap);
+                         ArrayList<JButton>  buttons, JPanel mapPanel, Maps myMap, JFrame gameFrame, ArrayList<Integer> winners){
 
-        }
+        do{
+            player[0] = (player[0] + 1) % nbPlayer;
+        }while(!winners.contains(player[0]));
+        playerLabel.setText(players.get(player[0]).getName() + ", it's your turn.");
+        colorLabel.setForeground(colors[player[0] + 1]);
+        playerPanel.revalidate();
+        processing[0] = false;
+        addData(buttons, mapPanel, myMap);
     }
 
-    private void lostMessage(String name){
-        JFrame lostFrame = new JFrame("You lost.");
-        lostFrame.setSize(250, 100);
-        lostFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    private void popUpMessage(String title, String message){
+        JFrame popUpFrame = new JFrame(title);
+        popUpFrame.setSize(300, 150);
+        popUpFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        popUpFrame.setLocationRelativeTo(null);
+        
+        
         JPanel lostPanel = new JPanel();
-        JLabel lostLabel = new JLabel("Sorry " + name + ", you lost the dice roll.");
+        JLabel lostLabel = new JLabel("<html>" + message + "</html>");
         JButton okButton = new JButton("OK");
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                lostFrame.dispose();
+                popUpFrame.dispose();
             }
         });
         lostPanel.add(lostLabel);
         lostPanel.add(okButton);
-        lostFrame.getContentPane().add(lostPanel);
-        lostFrame.setVisible(true);
+        popUpFrame.getContentPane().add(lostPanel);
+        popUpFrame.setVisible(true);
     }
 
     private void endOfGame(int winner){
         JFrame finalFrame = new JFrame("Winner : " + players.get(winner).getName());
         finalFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         finalFrame.setSize(500, 500);
+        finalFrame.setLocationRelativeTo(null);
         JPanel finalPanel = new JPanel();
         JLabel congratulationLabel = new JLabel("Congratulation " + players.get(winner).getName() + ", you won the " +
                 "game and destroyed your friends :)");
@@ -302,9 +443,12 @@ public class GUI extends Game{
     }
 
     public static void main(String[] args) {
+        final boolean[] checked = {false};
+
         JFrame launchFrame = new JFrame("Settings");
         launchFrame.setSize(500, 500);
         launchFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        launchFrame.setLocationRelativeTo(null);
 
         JPanel launchPanel = new JPanel();
         launchPanel.setLayout(new BoxLayout(launchPanel, BoxLayout.Y_AXIS));
@@ -318,8 +462,32 @@ public class GUI extends Game{
         playerNbPanel.add(playerNbLabel);
         playerNbPanel.add(jComboBoxPlayerNb);
 
-        //JPanel CSVPanel = new JPanel();
-        //CSVPanel.setLayout(new BoxLayout(launchPanel, BoxLayout.X_AXIS));
+        JPanel CSVCheckBoxPanel = new JPanel();
+        CSVCheckBoxPanel.setLayout(new BoxLayout(CSVCheckBoxPanel, BoxLayout.X_AXIS));
+        JLabel CSVCheckBoxLabel = new JLabel("Load map from CSV file.");
+        JCheckBox CSVCheckBox = new JCheckBox();
+        CSVCheckBoxPanel.add(CSVCheckBoxLabel);
+        CSVCheckBoxPanel.add(CSVCheckBox);
+
+        JPanel CSVPanel = new JPanel();
+        CSVPanel.setLayout(new BoxLayout(CSVPanel, BoxLayout.Y_AXIS));
+        JPanel CSVNamePanel = new JPanel();
+        CSVNamePanel.setLayout(new BoxLayout(CSVNamePanel, BoxLayout.X_AXIS));
+        JLabel CSVLabel = new JLabel("Enter the name of the file : ");
+        JTextField CSVTextField = new JTextField();
+        CSVTextField.setMaximumSize(new Dimension(150, 25));
+        CSVNamePanel.add(CSVLabel);
+        CSVNamePanel.add(CSVTextField);
+
+        JPanel errorCSVPanel = new JPanel();
+        errorCSVPanel.setLayout(new BoxLayout(errorCSVPanel, BoxLayout.X_AXIS));
+        JLabel errorCSVLabel = new JLabel("The file specified doesn't exist. Please enter a new one");
+        errorCSVLabel.setVisible(false);
+        errorCSVPanel.add(errorCSVLabel);
+
+        CSVPanel.add(CSVNamePanel);
+        CSVPanel.add(errorCSVPanel);
+        CSVPanel.setVisible(false);
 
         JPanel linesPanel = new JPanel();
         linesPanel.setLayout(new BoxLayout(linesPanel, BoxLayout.X_AXIS));
@@ -339,39 +507,87 @@ public class GUI extends Game{
         columnsPanel.add(columnsLabel);
         columnsPanel.add(jComboBoxColumns);
 
+        CSVCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                checked[0] = !checked[0];
+                CSVPanel.setVisible(checked[0]);
+                linesPanel.setVisible(!checked[0]);
+                columnsPanel.setVisible(!checked[0]);
+            }
+        });
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+
         JButton validateButton = new JButton("Validate");
         validateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int lines = (int)jComboBoxLines.getSelectedItem();
-                int columns = (int) jComboBoxColumns.getSelectedItem();
-                int nbTerritories = lines * columns;
-                int nbPlayer = (int)jComboBoxPlayerNb.getSelectedItem();
+                try{
+                    int nbTerritories;
+                    Maps myMap;
+                    int nbPlayer = (int)jComboBoxPlayerNb.getSelectedItem();
+                    if(checked[0]){
+                        String name = CSVTextField.getText();
+                        myMap = new Maps(name + ".csv");
+                        nbTerritories = myMap.map.length * myMap.map[0].length;
+                    }
+                    else{
+                        int lines = (int)jComboBoxLines.getSelectedItem();
+                        int columns = (int) jComboBoxColumns.getSelectedItem();
+                        nbTerritories = lines * columns;
 
-                //Creation of the map
-                Maps myMap = new Maps(lines, columns);
-                myMap.createMap();
+                        //Creation of the map
+                        myMap = new Maps(lines, columns);
+                        myMap.createMap();
+                    }
 
-                //Creation of the game
-                GUI gui = new GUI(nbPlayer, nbTerritories);
+                    //Creation of the game
+                    GUI gui = new GUI(nbPlayer, nbTerritories);
 
+<<<<<<< HEAD
                 //Creation of the players
                 gui.createPlayers();
 
                 gui.initMap(myMap.map); //Fill the territories with a strength and a player's ID
 
                 myMap.initNeighbors(); //Fill the neighbors for each territory
+=======
+                    //Creation of the players
+                    gui.createPlayers(launchFrame);
+                    gui.initMap(myMap.map); //Fill the territories with a strength and a player's ID
+                    myMap.initNeighbors(); //Fill the neighbors for each territory
+>>>>>>> master
 
-                gui.play(myMap);
+                    //Determine which player starts
+                    int[] player = {(int) (Math.random() * nbPlayer)};
 
-                System.out.print("Test");
+                    gui.play(myMap, player);
+                } catch (FileNotFoundException fileNotFoundException) {
+                    errorCSVLabel.setVisible(true);
+                } catch (Exception ignored){}
             }
         });
 
+        JButton loadButton = new JButton("Load a save");
+        loadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                GUI gui = new GUI(0, 0);
+                loadSaveGame();
+            }
+        });
+
+        buttonPanel.add(loadButton);
+        buttonPanel.add(validateButton);
+
         launchPanel.add(playerNbPanel);
+        launchPanel.add(CSVCheckBoxPanel);
+        launchPanel.add(CSVPanel);
         launchPanel.add(linesPanel);
         launchPanel.add(columnsPanel);
-        launchPanel.add(validateButton);
+        launchPanel.add(buttonPanel);
 
         launchFrame.getContentPane().add(launchPanel);
         launchFrame.setVisible(true);
